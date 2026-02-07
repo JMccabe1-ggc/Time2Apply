@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Header from "./Header";
+import Jobcard from "./Jobcard";
+import jobData from "./jobtest.json";
 import "./User.css";
 const User = () => {
 
@@ -92,6 +94,14 @@ const User = () => {
 
                 <main className="user-main">
                     <h2>Results</h2>
+                    {jobData.map((job) => (
+                        <Jobcard
+                            key={job.id}
+                            jobTitle={job.title}
+                            companyName={job.company}
+                            location={job.location}
+                        />
+                    ))}
                 </main>
             </div>
         </div>
