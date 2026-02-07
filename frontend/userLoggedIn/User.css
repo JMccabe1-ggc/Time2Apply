@@ -1,0 +1,80 @@
+.user-page {
+    min-height: 100vh;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.user-layout {
+    display: flex;
+    gap: 24px;
+    padding: 24px 32px;
+    align-items: flex-start;
+}
+
+.user-aside {
+    width: 280px;
+    flex-shrink: 0;
+    background: #111c2e;
+    border: 1px solid #1f2a3d;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+}
+
+.user-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-aside h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    color: #f8fafc;
+}
+
+.user-aside h4 {
+    margin: 12px 0 8px;
+    font-size: 14px;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.user-aside label {
+    display: block;
+    margin: 12px 0 6px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.user-aside input[type="text"] {
+    width: 100%;
+    background: #0b1220;
+    border: 1px solid #1f2a3d;
+    color: #e2e8f0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    outline: none;
+}
+
+.user-aside input[type="text"]:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.user-aside input[type="checkbox"] {
+    accent-color: #3b82f6;
+    margin-right: 8px;
+}
+
+.user-aside hr {
+    border: none;
+    border-top: 1px solid #1f2a3d;
+    margin: 16px 0;
+}
+
+.user-aside .slider {
+    width: 100%;
+    margin-top: 8px;
+    accent-color: #3b82f6;
+}
