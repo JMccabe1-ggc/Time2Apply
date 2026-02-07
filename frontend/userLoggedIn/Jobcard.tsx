@@ -1,5 +1,9 @@
 
 import "./Jobcard.css";
+const dummyLink="https://jmccabe1.domains.ggc.edu/";
+const goToPosting = () => {
+    window.open("https://jmccabe1.domains.ggc.edu/", "_blank");
+};
 
 type JobcardProps = {
     jobTitle: string;
@@ -42,9 +46,9 @@ const Jobcard = ({
                     <h3 className="jobcard-title">{jobTitle}</h3>
                     <p className="jobcard-company">{companyName}</p>
                 </div>
-                <span className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}>
+                <button onClick={goToPosting} className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}>
                     {applied ? "Applied" : "Open"}
-                </span>
+                </button>
             </div>
             <div className="jobcard-badges">
                 {jobType && <span className="jobcard-badge">{jobType}</span>}
