@@ -100,6 +100,12 @@ const User = () => {
                             jobTitle={job.title}
                             companyName={job.company}
                             location={job.location}
+                            jobType={job.jobType}
+                            jobSite={job.jobSite}
+                            applicationTypes={job.applicationType}
+                            pay={job.pay}
+                            applied={job.applied}
+                            jobPostedDate={job.datePosted}
                         />
                     ))}
                 </main>
