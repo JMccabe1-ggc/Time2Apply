@@ -1,6 +1,5 @@
 
 import "./Jobcard.css";
-const dummyLink="https://jmccabe1.domains.ggc.edu/";
 const goToPosting = () => {
     window.open("https://jmccabe1.domains.ggc.edu/", "_blank");
 };
