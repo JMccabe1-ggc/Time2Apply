@@ -1,0 +1,48 @@
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# --------------------
+# Virtual environments
+# --------------------
+venv/
+.venv/
+env/
+.env/
+
+# --------------------
+# Environment variables / secrets
+# --------------------
+.env
+.env.*
+*.env
+
+# --------------------
+# OS / Editor junk
+# --------------------
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# --------------------
+# Logs
+# --------------------
+*.log
+
+# --------------------
+# Test / coverage
+# --------------------
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --------------------
+# FastAPI / Uvicorn
+# --------------------
+*.pid
