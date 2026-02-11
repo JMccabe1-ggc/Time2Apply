@@ -133,6 +133,52 @@
     box-shadow: none;
 }
 
+.apply-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 24, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 1000;
+}
+
+.apply-popup p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.apply-popup button {
+    background: #2563eb;
+    color: #f8fafc;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    min-width: 80px;
+}
+
+.apply-popup button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.apply-popup button:last-child {
+    background: transparent;
+    border: 1px solid #334155;
+}
+
+.apply-popup button:last-child:hover {
+    background: rgba(148, 163, 184, 0.12);
+}
+
 @media (max-width: 640px) {
     .jobcard {
         padding: 16px;

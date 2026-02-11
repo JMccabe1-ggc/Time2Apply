@@ -13,7 +13,8 @@
         "currency": "USD"
     },
     "applied": false,
-    "datePosted": "2024-06-15"
+    "datePosted": "2024-06-15",
+    "description": "words oifdjgiodj"
   },
     {
         "id": 2,
@@ -90,6 +91,38 @@
         },
         "applied": false,
         "datePosted": "2024-06-20"
+    },
+    {
+        "id": 7,
+        "title": "Mobile App Developer",
+        "company": "Uber",
+        "location": "San Francisco, CA",
+        "jobType": "Part-time",
+        "jobSite": "LinkedIn",
+        "applicationType": "Easy Apply",
+        "pay":{
+            "min": 90000,
+            "max": 130000,
+            "currency": "USD"
+        },
+        "applied": false,
+        "datePosted": "2024-06-17"
+    },
+    {
+        "id": 8,
+        "title": "Machine Learning Engineer",
+        "company": "OpenAI",
+        "location": "San Francisco, CA",
+        "jobType": "Full-time",
+        "jobSite": "Indeed",
+        "applicationType": "External Apply",
+        "pay":{
+            "min": 120000,
+            "max": 160000,
+            "currency": "USD"
+        },
+        "applied": true,
+        "datePosted": "2024-06-19"
     }
   
 ]

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Header";
 import Jobcard from "./Jobcard";
 import jobData from "./jobtest.json";
@@ -26,6 +26,26 @@ const User = () => {
         externalApply: true,
         questionaire: true,
     });
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [locationTerm, setLocationTerm] = useState("");
+    const term= searchTerm.toLowerCase();
+    const locationTermLower = locationTerm.toLowerCase();
+    const [pendingApplyJobId, setPendingApplyJobId] = useState<string | null>(null);
+    const [showApplyPrompt, setShowApplyPrompt] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+    const selectedJob = jobData.find((j) => j.id === selectedJobId) ?? null;
+
+
+
+    //WILL NEED FOR FAST API CALLS TO REDUCE SPAM CALLS
+   // useEffect(() => {
+    //const delay = setTimeout(() => {
+        // run search / API call
+    //}, 400);
+    //return () => clearTimeout(delay);
+//}, [searchTerm]);
+
 
     const filteredJobs = jobData.filter((job) => {
         if (job.jobType==="Full-time" && !jobType.fullTime) {
@@ -61,9 +81,26 @@ const User = () => {
         if (job.applicationType==="Questionnaire" && !applicationType.questionaire) {
             return false;
         }
-       // if (job.pay.max < minSalary || job.pay.min > maxSalary) {
-         //   return false;
-        //}
+        if (job.pay && (job.pay.max < minSalary || job.pay.min > maxSalary)) {
+            return false;
+        }
+        if (term) {
+            const titleMatch = job.title?.toLowerCase().includes(term);
+            const companyMatch = job.company?.toLowerCase().includes(term);
+            const locationMatch = job.location?.toLowerCase().includes(term.toLowerCase());
+            const jobTypeMatch = job.jobType?.toLowerCase().includes(term);
+            const jobSiteMatch = job.jobSite?.toLowerCase().includes(term);
+            const applicationTypeMatch = job.applicationType?.toLowerCase().includes(term);
+            if (!titleMatch && !companyMatch && !locationMatch && !jobTypeMatch && !jobSiteMatch && !applicationTypeMatch) {
+                return false;
+            }
+        }
+        if (locationTermLower) {
+            const locationMatch = job.location?.toLowerCase().includes(locationTermLower);
+            if (!locationMatch) {
+                return false;
+            }
+        }
         return true;
     });
 
@@ -79,9 +116,9 @@ const User = () => {
                         <h2>Filters</h2>
                         <h4>Search</h4>
                         <label htmlFor="search">Job Title, Company, Keywords</label>
-                        <input type="text" name="search" id="search" />
+                        <input type="text" name="search" id="search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                         <label htmlFor="location">Location</label>
-                        <input type="text" name="location" id="location" />
+                        <input type="text" name="location" id="location" value={locationTerm} onChange={(e) => setLocationTerm(e.target.value)} />
                         <hr />
                         <label htmlFor="">Job Type</label>
                         
@@ -165,6 +202,7 @@ const User = () => {
                             pay={job.pay}
                             applied={job.applied}
                             jobPostedDate={job.datePosted}
+                            
                         />
                     ))}
                 </main>
