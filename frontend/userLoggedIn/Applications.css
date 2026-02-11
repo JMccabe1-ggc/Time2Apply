@@ -88,3 +88,110 @@
     font-weight: 700;
     color: #f8fafc;
 }
+
+.applications-table-section {
+    padding: 0 32px 40px;
+}
+
+.applications-table-header {
+    margin-bottom: 20px;
+}
+
+.applications-table-header h2 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    color: #f8fafc;
+}
+
+.applications-table-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.applications-table-wrapper {
+    background: #111c2e;
+    border: 1px solid #1f2a3d;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.applications-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.applications-table thead {
+    background: #0b1220;
+}
+
+.applications-table thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #1f2a3d;
+}
+
+.applications-table tbody tr {
+    border-bottom: 1px solid #1f2a3d;
+    transition: background 0.2s ease;
+}
+
+.applications-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.applications-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.applications-table tbody td {
+    padding: 16px;
+    font-size: 14px;
+    color: #e2e8f0;
+}
+
+.applications-status-select {
+    background: #0b1220;
+    border: 1px solid #1f2a3d;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.applications-status-select:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    background: #111c2e;
+}
+
+.applications-status-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.applications-status-select option {
+    background: #0b1220;
+    color: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .applications-table-section {
+        padding: 0 16px 32px;
+    }
+    
+    .applications-table-wrapper {
+        overflow-x: auto;
+    }
+    
+    .applications-table {
+        min-width: 600px;
+    }
+}
