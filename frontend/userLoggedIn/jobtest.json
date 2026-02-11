@@ -22,7 +22,7 @@
         "location": "Seattle, WA",
         "jobType": "Full-time",
         "jobSite": "Indeed",
-        "applicationType": "External",
+        "applicationType": "External Apply",
         "pay":{
             "min": 95000,
             "max": 130000,
@@ -37,11 +37,59 @@
         "company": "Facebook",
         "location": "Menlo Park, CA",
         "jobType": "Part-time",
-        "jobSite": "Glassdoor",
+        "jobSite": "Monster",
         "applicationType": "Easy Apply",
         
         "applied": false,
         "datePosted": "2024-06-12"
+    },
+    {
+        "id": 4,
+        "title": "UX Designer",
+        "company": "Apple",
+        "location": "Cupertino, CA",
+        "jobType": "Contract",
+        "jobSite": "LinkedIn",
+        "applicationType": "External Apply",
+        "pay":{
+            "min": 70000,
+            "max": 100000,
+            "currency": "USD"
+        },
+        "applied": false,
+        "datePosted": "2024-06-18"
+    },
+    {
+        "id": 5,
+        "title": "DevOps Engineer",
+        "company": "Netflix",
+        "location": "Los Gatos, CA",
+        "jobType": "Internship",
+        "jobSite": "Indeed",
+        "applicationType": "Easy Apply",
+        "pay":{
+            "min": 110000,
+            "max": 150000,
+            "currency": "USD"
+        },
+        "applied": true,
+        "datePosted": "2024-06-14"
+    },
+    {
+        "id": 6,
+        "title": "Product Manager",
+        "company": "Microsoft",
+        "location": "Redmond, WA",
+        "jobType": "Full-time",
+        "jobSite": "Handshake",
+        "applicationType": "Questionnaire",
+        "pay":{
+            "min": 85000,
+            "max": 125000,
+            "currency": "USD"
+        },
+        "applied": false,
+        "datePosted": "2024-06-20"
     }
   
 ]

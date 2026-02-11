@@ -18,6 +18,7 @@ type JobcardProps = {
     };
     applied: boolean;
     jobPostedDate: string;
+    description?: string;
 };
 
 const Jobcard = ({
