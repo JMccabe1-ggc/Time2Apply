@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from config.client import supabase
+import os
 
 app = FastAPI()
 
@@ -12,3 +14,9 @@ def read_root():
 #delete
 #update
 #patch maybe
+
+
+@app.get("/profiles")
+def get_profiles():
+    res = supabase.table("profiles").select("*").execute()
+    return res.data
