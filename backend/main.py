@@ -1,22 +1,77 @@
-from fastapi import FastAPI
-from config.client import supabase
-import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, EmailStr
+from config.client import supabase  #  IMPORTANT (works with: uvicorn main:app)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class SignupData(BaseModel):
+    firstName: str
+    lastName: str
+    email: EmailStr
+    password: str
+
 
 @app.get("/")
 def read_root():
     return {"status": "ok"}
 
-#get
-#post
-#put
-#delete
-#update
-#patch maybe
 
-
+# THIS IS PROFILES
 @app.get("/profiles")
 def get_profiles():
+    try:
+        res = supabase.table("profiles").select("*").execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/signup")
+def show_signup_data():
     res = supabase.table("profiles").select("*").execute()
     return res.data
+
+#  THIS IS SIGNUP: Auth + DB insert + message
+@app.post("/signup")
+def signup_user(data: SignupData):
+    try:
+        # 🔥 Create user WITHOUT sending confirmation email
+        auth_res = supabase.auth.admin.create_user({
+            "email": data.email,
+            "password": data.password,
+            "email_confirm": True  # marks email as confirmed
+        })
+
+        user_id = auth_res.user.id
+
+        # Insert into profiles table
+        profile_res = (
+            supabase.table("profiles")
+            .insert({
+                "full_name": f"{data.firstName} {data.lastName}",
+                "email": data.email,
+                "user_id": user_id,
+                "current_title": None,
+                "phone": None,
+                "bio": None,
+                "location": None,
+            })
+            .execute()
+        )
+
+        return {
+            "message": "Account created successfully ✅",
+            "user_id": user_id
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

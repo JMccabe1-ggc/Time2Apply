@@ -1,0 +1,25 @@
+# Python / virtualenv
+.venv/
+venv/
+backend/venv/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+
+# dotenv / secrets
+.env
+.env.*
+*.env
+backend/.env
+frontend/.env*
+frontend/.env.local
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
+
+# misc
+*.log
