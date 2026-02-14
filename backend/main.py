@@ -19,6 +19,10 @@ class SignupData(BaseModel):
     email: EmailStr
     password: str
 
+class LoginData(BaseModel):
+    email: str
+    password: str
+
 
 @app.get("/")
 def read_root():
@@ -74,4 +78,45 @@ def signup_user(data: SignupData):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+@app.post("/login")
+def login_user(data: LoginData):
+    try:
+        auth_res = supabase.auth.sign_in_with_password({
+            "email": data.email,
+            "password": data.password
+        })
+
+        return {
+            "message": "Login successful",
+            "user_id": auth_res.user.id,
+            "access_token": auth_res.session.access_token
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# @app.post("/login")
+# def login_user(data: LoginData):
+#     try:
+#         res = (
+#             supabase.table("profiles")
+#             .select("*")
+#             .eq("email", data.email)
+#             .execute()
+#         )
+
+#         if not res.data:
+#             return {"message": "Couldn't find your email, please register"}
+
+#         user = res.data[0]
+
+#         if data.password == user.get("password"):
+#             return {"message": "Email and password match"}
+#         else:
+#             return {"message": "Password is wrong"}
+
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 

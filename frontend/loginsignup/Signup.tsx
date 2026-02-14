@@ -33,7 +33,7 @@ const Signup = () => {
       setLoading(true);
 
       // ✅ IMPORTANT: backend is running on 8001
-      const response = await fetch("http://127.0.0.1:8001/signup", {
+      const response = await fetch("http://127.0.0.1:8000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,7 +62,9 @@ const Signup = () => {
         confirmPassword: "",
       });
     } catch (error) {
-      setResponseMessage("Backend not reachable. Make sure FastAPI is running on port 8001.");
+      setResponseMessage(
+        "Backend not reachable. Make sure FastAPI is running on port 8001.",
+      );
       console.error("Error:", error);
     } finally {
       setLoading(false);
