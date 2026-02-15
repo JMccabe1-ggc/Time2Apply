@@ -19,6 +19,7 @@ frontend/.env.local
 # OS / editors
 .DS_Store
 .vscode/
+.vscode
 .idea/
 
 # misc
