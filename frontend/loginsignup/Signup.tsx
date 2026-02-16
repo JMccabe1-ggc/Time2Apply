@@ -32,8 +32,8 @@ const Signup = () => {
     try {
       setLoading(true);
 
-      // ✅ IMPORTANT: backend is running on 8001
-      const response = await fetch("http://127.0.0.1:8001/signup", {
+      // IMPORTANT: backend is running on 8000
+      const response = await fetch("http://127.0.0.1:8000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -51,7 +51,7 @@ const Signup = () => {
         return;
       }
 
-      setResponseMessage(data?.message || "Account created ✅");
+      setResponseMessage(data?.message || "Account created ");
 
       // optional: clear form
       setFormData({
@@ -62,7 +62,7 @@ const Signup = () => {
         confirmPassword: "",
       });
     } catch (error) {
-      setResponseMessage("Backend not reachable. Make sure FastAPI is running on port 8001.");
+      setResponseMessage("Backend not reachable. Make sure FastAPI is running on port 8000.");
       console.error("Error:", error);
     } finally {
       setLoading(false);
@@ -85,7 +85,7 @@ const Signup = () => {
         </div>
 
         <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-8 shadow-xl">
-          {/* ✅ connect submit handler */}
+          {/* connect submit handler */}
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -173,7 +173,7 @@ const Signup = () => {
             </button>
           </form>
 
-          {/* ✅ show success/error message */}
+          {/* show success/error message */}
           {responseMessage && (
             <p className="mt-4 text-sm text-slate-200">{responseMessage}</p>
           )}

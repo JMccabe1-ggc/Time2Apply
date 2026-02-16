@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
-from config.client import supabase  #  IMPORTANT (works with: uvicorn main:app)
+from config.client import supabase  
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=["http://localhost:5173", "http://localhost:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,13 +19,16 @@ class SignupData(BaseModel):
     email: EmailStr
     password: str
 
+class LoginData(BaseModel):
+    email: EmailStr
+    password: str
 
 @app.get("/")
 def read_root():
     return {"status": "ok"}
 
 
-# THIS IS PROFILES
+#THIS IS PROFILES
 @app.get("/profiles")
 def get_profiles():
     try:
@@ -39,15 +42,15 @@ def show_signup_data():
     res = supabase.table("profiles").select("*").execute()
     return res.data
 
-#  THIS IS SIGNUP: Auth + DB insert + message
+# THIS IS SIGNUP: Auth , DB insert  
 @app.post("/signup")
 def signup_user(data: SignupData):
     try:
-        # 🔥 Create user WITHOUT sending confirmation email
+        # Create user WITHOUT sending confirmation email
         auth_res = supabase.auth.admin.create_user({
             "email": data.email,
             "password": data.password,
-            "email_confirm": True  # marks email as confirmed
+            "email_confirm": True  
         })
 
         user_id = auth_res.user.id
@@ -68,10 +71,25 @@ def signup_user(data: SignupData):
         )
 
         return {
-            "message": "Account created successfully ✅",
+            "message": "Account created successfully ",
             "user_id": user_id
         }
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
+@app.post("/login")
+def login_user(data: LoginData):
+    try:
+        auth_res = supabase.auth.sign_in_with_password({
+            "email": data.email,
+            "password": data.password
+        })
+        return {
+            "message": "Login successful",
+            "user_id": auth_res.user.id,
+            "access_token": auth_res.session.access_token
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

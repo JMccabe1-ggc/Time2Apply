@@ -1,18 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in environment");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const Login = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    
-    const fakeLogin = () =>{
-        if (email==="a@a.com" && password==="admin"){
-            navigate("/user");
-        }
-    };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    setError(error.message);
+    setLoading(false);
+    return;
+  }
+
+  setLoading(false);
+  navigate("/user");
+};
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
             <div className="absolute -top-32 right-0 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
@@ -29,7 +54,7 @@ const Login = () => {
                 </div>
 
                 <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-8 shadow-xl">
-                    <form className="space-y-5">
+                    <form className="space-y-5"onSubmit={handleLogin} >
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-2">
                                 Email
@@ -70,16 +95,20 @@ const Login = () => {
                             </Link>
                         </div>
 
-                        <button
+                          <button
                             type="submit"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                fakeLogin();
-                            }}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+                            disabled={loading}
+                            className="
+                            w-full rounded-lg py-2.5 font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:bg-blue-600 disabled:text-white  disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                            
                         >
-                            Log In
+                            {loading ? "Logging in…" : "Log In"}
                         </button>
+                        {error && (
+                        <div className="text-sm text-red-300 bg-red-900/20 border border-red-800/40 rounded-lg p-3 text-center">
+                        {error}
+                          </div>
+                            )}
                     </form>
 
                     <div className="mt-6 text-center text-sm text-slate-300">
