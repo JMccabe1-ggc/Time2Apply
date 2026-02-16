@@ -4,12 +4,12 @@ import './index.css'
 import App from './App.tsx'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Login from '../loginsignup/Login.tsx'
-import Signup from '../loginsignup/Signup.tsx'
 import Forgotpassword from '../loginsignup/Forgotpassword.tsx'
 import User from '../userLoggedIn/User.tsx'
 import Applications from '../userLoggedIn/Applications.tsx'
 import Resume from '../userLoggedIn/Resume.tsx'
 import Profile from '../userLoggedIn/Profile'
+import SignupRoute from './app/routes/signup.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
     <Routes>
       <Route path="/*" element={<App />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup" element={<SignupRoute />} />
       <Route path="/forgotpassword" element={<Forgotpassword />} />
       <Route path="/user" element={<User />} />
       <Route path="/applications" element={<Applications />} />
