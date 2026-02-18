@@ -1,7 +1,14 @@
 
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Forgotpassword = () => {
+    const navigate = useNavigate();
+    const goToNewPassword = () => {
+    navigate("/newpassword");
+};
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
             <div className="absolute -top-32 right-0 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
@@ -33,6 +40,7 @@ const Forgotpassword = () => {
                         </div>
 
                         <button
+                            onClick={goToNewPassword}
                             type="submit"
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
                         >

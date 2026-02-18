@@ -10,6 +10,7 @@ import Applications from '../userLoggedIn/Applications.tsx'
 import Resume from '../userLoggedIn/Resume.tsx'
 import Profile from '../userLoggedIn/Profile'
 import SignupRoute from './app/routes/signup.tsx'
+import Newpassword from '../loginsignup/Newpassword.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/applications" element={<Applications />} />
       <Route path="/resume" element={<Resume />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/newpassword" element={<Newpassword />} />
     </Routes>
     </BrowserRouter>
   </StrictMode>,
