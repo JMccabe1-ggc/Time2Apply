@@ -2,6 +2,7 @@
 .venv/
 venv/
 backend/venv/
+.pytest_cache
 
 # Node / frontend
 node_modules/
