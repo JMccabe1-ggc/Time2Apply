@@ -1,4 +1,6 @@
 
+import supabase from "@/utils/supabase";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +10,23 @@ const Forgotpassword = () => {
     navigate("/newpassword");
 };
 
+const [email, setEmail] = useState("");
+
+const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/newpassword`,
+    });
+
+    // Always show a generic success message (prevents email enumeration)
+    if (error) {
+      setMsg("If an account exists for that email, you’ll receive a reset link shortly.");
+      return;
+    }
+    setMsg("If an account exists for that email, you’ll receive a reset link shortly.");
+  };const [msg, setMsg] = useState<string | null>(null);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
@@ -25,12 +44,13 @@ const Forgotpassword = () => {
                 </div>
 
                 <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-8 shadow-xl">
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={sendReset}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-2">
                                 Email
                             </label>
                             <input
+                                onChange={(e) => setEmail(e.target.value)}
                                 type="email"
                                 id="email"
                                 name="email"
@@ -40,14 +60,14 @@ const Forgotpassword = () => {
                         </div>
 
                         <button
-                            onClick={goToNewPassword}
+                            
                             type="submit"
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
                         >
                             Send Reset Link
                         </button>
                     </form>
-
+                    {msg && <p className="mt-4 text-center text-sm text-green-400">{msg}</p>}
                     <div className="mt-6 text-center text-sm text-slate-300">
                         Remembered your password?{" "}
                         <Link to="/login" className="text-blue-400 hover:text-blue-300">
