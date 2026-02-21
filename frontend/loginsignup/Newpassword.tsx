@@ -34,7 +34,7 @@ export default function Newpassword() {
           setMsg(error.message);
           return;
         }
-        // optional: clean URL (removes code from address bar)
+        // clean URL (removes code from address bar)
         url.searchParams.delete("code");
         window.history.replaceState({}, "", url.toString());
       }
