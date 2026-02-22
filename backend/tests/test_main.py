@@ -42,3 +42,32 @@ def test_signup_sad():
     })
 
     assert response.status_code == 422
+
+# VALID email and password
+@patch("main.supabase")
+def test_login_happy(mock_supabase):
+    # Mock user id and token
+    mock_supabase.auth.sign_in_with_password.return_value.user.id = "123"
+    mock_supabase.auth.sign_in_with_password.return_value.session.access_token = "fake_token"
+
+    response = client.post("/login", json = {
+        "email": "johndoe@example.com",
+        "password": "password123"
+    })
+
+    assert response.json()["message"] == "Login successful"
+    assert response.json()["user_id"] == "123"
+    assert response.json()["access_token"] == "fake_token"
+
+# INVALID password
+@patch("main.supabase")
+def test_login_sad(mock_supabase):
+    mock_supabase.auth.sign_in_with_password.side_effect = Exception("Invalid Credential")
+
+    response = client.post("/login", json = {
+        "email": "johndoe@example.com",
+        "password": "password123"
+    })
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid Credential"
