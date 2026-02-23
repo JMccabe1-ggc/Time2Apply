@@ -20,9 +20,34 @@ const Signup = () => {
     }));
   };
 
+  const validatePassword = (password: string) => {
+    const minLength = password.length >= 12;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\-\\[\]\\\/`~+=;'"]/g.test(
+      password,
+    );
+    const hasNumber = /[0-9]/.test(password);
+
+    return {
+      minLength,
+      hasUpperCase,
+      hasSpecialChar,
+      isValid: minLength && hasUpperCase && hasSpecialChar && hasNumber,
+    };
+  };
+
+  const passwordValidation = validatePassword(formData.password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setResponseMessage("");
+
+    if (!passwordValidation.isValid) {
+      setResponseMessage(
+        "Password must be at least 12 characters long, include an uppercase letter, and a special character and a number.",
+      );
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setResponseMessage("Passwords do not match.");
@@ -33,7 +58,7 @@ const Signup = () => {
       setLoading(true);
 
       // IMPORTANT: backend is running on 8000
-      const response = await fetch("http://127.0.0.1:8000/signup", {
+      const response = await fetch("http://127.0.0.1:8001/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,7 +87,9 @@ const Signup = () => {
         confirmPassword: "",
       });
     } catch (error) {
-      setResponseMessage("Backend not reachable. Make sure FastAPI is running on port 8000.");
+      setResponseMessage(
+        "Backend not reachable. Make sure FastAPI is running on port 8000.",
+      );
       console.error("Error:", error);
     } finally {
       setLoading(false);
