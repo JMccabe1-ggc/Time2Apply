@@ -2,12 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from config.client import supabase  
+import re
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8000"],
+    allow_origins=["http://localhost:5173", "http://localhost:8001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,6 +46,7 @@ def show_signup_data():
 # THIS IS SIGNUP: Auth , DB insert  
 @app.post("/signup")
 def signup_user(data: SignupData):
+    validate_password(data.password)
     try:
         # Create user WITHOUT sending confirmation email
         auth_res = supabase.auth.admin.create_user({
@@ -93,3 +95,15 @@ def login_user(data: LoginData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+def validate_password(password: str):
+    if len(password) < 12:
+        raise HTTPException(status_code=400, detail="Password must be at least 12 characters long.")
+
+    if not re.search("[A-Z]", password):
+        raise HTTPException(status_code=400, detail="Password must include at least one uppercase letter.")
+
+    if not re.search("[0-9]", password):
+        raise HTTPException(status_code=400, detail="Password must include at least one number.")
+
+    if not re.search("[!@#$%^&*(),.?\":{}|<>_\-\\/\[\]`~+=;']", password):
+        raise HTTPException(status_code=400, detail="Password must include at least one special character.")
