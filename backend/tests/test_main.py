@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fastapi.testclient import TestClient
+import pytest
 from unittest.mock import patch
 from main import app
 
@@ -15,7 +16,7 @@ def test_read_main():
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
-# VALID data
+# VALID data and VALID PASSWORD
 @patch("main.supabase")
 def test_signup_happy(mock_supabase):
     mock_supabase.auth.admin.create_user.return_value.user.id = "123"
@@ -32,8 +33,29 @@ def test_signup_happy(mock_supabase):
     assert response.json()["user_id"] == "123"
     assert response.json()["message"] == "Account created successfully "
 
+test_password_data = [
+    ("not12char", 400, "Password must be at least 12 characters long."),
+    ("no_capitalize_letter", 400, "Password must include at least one uppercase letter."),
+    ("THERE_is_no_numbers", 400, "Password must include at least one number."),
+    ("N0SpecialCharacters", 400, "Password must include at least one special character.")
+]    
+
+@pytest.mark.parametrize("password, expected_stat_code, detail", test_password_data)
+def test_signup_sad_password(password, expected_stat_code, detail):
+    response = client.post("/signup", json = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "password": password
+    })
+
+    print(f"Response status: {response.status_code}\nExpected status: {expected_stat_code}")
+    print(f"Response detail: {response.json()["detail"]}\nExpected detail: {detail}")
+    assert response.status_code == expected_stat_code
+    assert response.json()["detail"] == detail
+
 # INVALID email
-def test_signup_sad():
+def test_signup_sad_email():
     response = client.post("/signup", json = {
         "firstName": "John",
         "lastName": "Doe",
@@ -71,3 +93,5 @@ def test_login_sad(mock_supabase):
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid Credential"
+
+
