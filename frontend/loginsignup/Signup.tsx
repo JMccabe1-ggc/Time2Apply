@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Signup = () => {
 
   const [responseMessage, setResponseMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -75,7 +77,7 @@ const Signup = () => {
         setResponseMessage(data?.detail || "Signup failed.");
         return;
       }
-
+      navigate("/user");
       setResponseMessage(data?.message || "Account created ");
 
       // optional: clear form

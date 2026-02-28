@@ -1,0 +1,125 @@
+.profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.profile-main {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 48rem;
+    padding: 2.5rem 1.5rem;
+}
+
+.profile-card {
+    border-radius: 1rem;
+    border: 1px solid #334155;
+    background-color: rgba(30, 41, 59, 0.7);
+    padding: 2rem;
+    box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.45);
+}
+
+.profile-header {
+    margin-bottom: 1.5rem;
+}
+
+.profile-title {
+    margin: 0;
+    color: #f1f5f9;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.profile-subtitle {
+    margin: 0.5rem 0 0;
+    color: #cbd5e1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.profile-fields {
+    display: grid;
+    gap: 1rem;
+}
+
+.profile-label {
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.profile-note {
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #334155;
+    background-color: rgba(15, 23, 42, 0.6);
+    padding: 0.75rem 1rem;
+    color: #cbd5e1;
+    font-size: 0.875rem;
+}
+
+.profile-select {
+    font-size: 0.875rem;
+}
+
+.profile-select__control {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    min-height: 44px !important;
+    border-radius: 0.75rem !important;
+    box-shadow: none !important;
+}
+
+.profile-select__control--is-focused {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.profile-select__menu {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+}
+
+.profile-select__option {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+.profile-select__option--is-focused {
+    background-color: #1e293b !important;
+}
+
+.profile-select__input-container,
+.profile-select__input,
+.profile-select__single-value {
+    color: #f8fafc !important;
+}
+
+.profile-select__placeholder {
+    color: #94a3b8 !important;
+}
+
+.profile-select__multi-value {
+    background-color: #1e293b !important;
+    border-radius: 9999px !important;
+}
+
+.profile-select__multi-value__label {
+    color: #e2e8f0 !important;
+    padding: 2px 8px !important;
+}
+
+.profile-select__multi-value__remove {
+    color: #cbd5e1 !important;
+}
+
+.profile-select__multi-value__remove:hover {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}

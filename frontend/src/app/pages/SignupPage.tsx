@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SignUpForm from "../../components/forms/SignupForm.tsx";
 
 type SignupPayload = {
@@ -12,6 +13,7 @@ type SignupPayload = {
 const SignupPage = () => {
   const [responseMessage, setResponseMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (payload: SignupPayload) => {
     setResponseMessage("");
@@ -31,11 +33,12 @@ const SignupPage = () => {
       }
 
       setResponseMessage(data?.message || "Account created ✅");
+      navigate("/user");
     } catch (error) {
       setResponseMessage(
         error instanceof Error
           ? error.message
-          : "Backend not reachable. Make sure FastAPI is running on port 8001."
+          : "Backend not reachable. Make sure FastAPI is running on port 8000."
       );
     } finally {
       setLoading(false);
