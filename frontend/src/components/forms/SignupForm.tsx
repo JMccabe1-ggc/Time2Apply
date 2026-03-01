@@ -22,6 +22,17 @@ const SignUpForm = ({ onSubmit, loading }: SignUpFormProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const checkPassword = (password: string) => {
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+};
+const rules = checkPassword(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -98,6 +109,27 @@ const SignUpForm = ({ onSubmit, loading }: SignUpFormProps) => {
               className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               required
             />
+            <ul className="text-sm mt-2 space-y-1">
+  <li className={rules.length ? "text-green-500" : "text-red-500"}>
+    {rules.length ? "✓" : "✗"} At least 8 characters
+  </li>
+
+  <li className={rules.uppercase ? "text-green-500" : "text-red-500"}>
+    {rules.uppercase ? "✓" : "✗"} One uppercase letter
+  </li>
+
+  <li className={rules.lowercase ? "text-green-500" : "text-red-500"}>
+    {rules.lowercase ? "✓" : "✗"} One lowercase letter
+  </li>
+
+  <li className={rules.number ? "text-green-500" : "text-red-500"}>
+    {rules.number ? "✓" : "✗"} One number
+  </li>
+
+  <li className={rules.special ? "text-green-500" : "text-red-500"}>
+    {rules.special ? "✓" : "✗"} One special character
+  </li>
+</ul>
           </div>
 
           <div className="grid gap-2">
