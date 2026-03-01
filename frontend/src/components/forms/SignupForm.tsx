@@ -20,6 +20,7 @@ const SignUpForm = ({ onSubmit, loading }: SignUpFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const checkPassword = (password: string) => {
@@ -32,6 +33,26 @@ const SignUpForm = ({ onSubmit, loading }: SignUpFormProps) => {
   };
 };
 const rules = checkPassword(password);
+const hasPasswordInput = password.length > 0;
+const showPasswordRules = isPasswordFocused || hasPasswordInput;
+
+const getRuleTextClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "text-slate-400";
+  }
+
+  return isMet ? "text-emerald-400" : "text-slate-500";
+};
+
+const getRuleBadgeClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "border-slate-600 bg-slate-700/60 text-slate-300";
+  }
+
+  return isMet
+    ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-300"
+    : "border-slate-600 bg-slate-700/60 text-slate-300";
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,30 +127,59 @@ const rules = checkPassword(password);
               placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
               className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               required
             />
-            <ul className="text-sm mt-2 space-y-1">
-  <li className={rules.length ? "text-green-500" : "text-red-500"}>
-    {rules.length ? "✓" : "✗"} At least 8 characters
-  </li>
+            {showPasswordRules && (
+              <ul className="mt-3 grid grid-cols-1 gap-2 rounded-md border border-slate-700/80 bg-slate-900/60 p-3 text-sm sm:grid-cols-2">
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.length)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.length)}`}
+                  >
+                    {rules.length ? "✓" : "•"}
+                  </span>
+                  At least 8 characters
+                </li>
 
-  <li className={rules.uppercase ? "text-green-500" : "text-red-500"}>
-    {rules.uppercase ? "✓" : "✗"} One uppercase letter
-  </li>
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.uppercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.uppercase)}`}
+                  >
+                    {rules.uppercase ? "✓" : "•"}
+                  </span>
+                  One uppercase letter
+                </li>
 
-  <li className={rules.lowercase ? "text-green-500" : "text-red-500"}>
-    {rules.lowercase ? "✓" : "✗"} One lowercase letter
-  </li>
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.lowercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.lowercase)}`}
+                  >
+                    {rules.lowercase ? "✓" : "•"}
+                  </span>
+                  One lowercase letter
+                </li>
 
-  <li className={rules.number ? "text-green-500" : "text-red-500"}>
-    {rules.number ? "✓" : "✗"} One number
-  </li>
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.number)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.number)}`}
+                  >
+                    {rules.number ? "✓" : "•"}
+                  </span>
+                  One number
+                </li>
 
-  <li className={rules.special ? "text-green-500" : "text-red-500"}>
-    {rules.special ? "✓" : "✗"} One special character
-  </li>
-</ul>
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 sm:col-span-2 ${getRuleTextClass(rules.special)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.special)}`}
+                  >
+                    {rules.special ? "✓" : "•"}
+                  </span>
+                  One special character
+                </li>
+              </ul>
+            )}
           </div>
 
           <div className="grid gap-2">

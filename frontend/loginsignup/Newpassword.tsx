@@ -11,6 +11,39 @@ export default function Newpassword() {
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false); // session exists
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+   const checkPassword = (password: string) => {
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+};
+const rules = checkPassword(password);
+const hasPasswordInput = password.length > 0;
+const showPasswordRules = isPasswordFocused || hasPasswordInput;
+
+const getRuleTextClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "text-slate-400";
+  }
+
+  return isMet ? "text-emerald-400" : "text-slate-500";
+};
+
+const getRuleBadgeClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "border-slate-600 bg-slate-700/60 text-slate-300";
+  }
+
+  return isMet
+    ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-300"
+    : "border-slate-600 bg-slate-700/60 text-slate-300";
+};
+
 
   useEffect(() => {
     const init = async () => {
@@ -87,8 +120,58 @@ export default function Newpassword() {
             placeholder="New password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
             disabled={!ready || loading}
           />
+          {showPasswordRules && (
+              <ul className="mt-3 grid grid-cols-1 gap-2 rounded-md border border-slate-700/80 bg-slate-900/60 p-3 text-sm sm:grid-cols-2">
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.length)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.length)}`}
+                  >
+                    {rules.length ? "✓" : "•"}
+                  </span>
+                  At least 8 characters
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.uppercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.uppercase)}`}
+                  >
+                    {rules.uppercase ? "✓" : "•"}
+                  </span>
+                  One uppercase letter
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.lowercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.lowercase)}`}
+                  >
+                    {rules.lowercase ? "✓" : "•"}
+                  </span>
+                  One lowercase letter
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.number)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.number)}`}
+                  >
+                    {rules.number ? "✓" : "•"}
+                  </span>
+                  One number
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 sm:col-span-2 ${getRuleTextClass(rules.special)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.special)}`}
+                  >
+                    {rules.special ? "✓" : "•"}
+                  </span>
+                  One special character
+                </li>
+              </ul>
+            )}
           <input
             className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-2.5"
             type="password"
