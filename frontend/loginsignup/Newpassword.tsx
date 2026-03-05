@@ -93,7 +93,13 @@ const getRuleBadgeClass = (isMet: boolean) => {
       return;
     }
     if (password !== confirmPassword) return setMsg("Passwords do not match.");
-    if (password.length < 8) return setMsg("Password must be at least 8 characters.");
+      if (password.length < 12) return setMsg("Password must be at least 12 characters.");
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\-\\[\]\\\/`~+=;'"]/g.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    if (!hasUpperCase || !hasSpecialChar || !hasNumber) {
+      return setMsg("Password must include an uppercase letter, a special character, and a number.");
+    }
 
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
