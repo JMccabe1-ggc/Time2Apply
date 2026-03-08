@@ -11,6 +11,9 @@ import Resume from '../userLoggedIn/Resume.tsx'
 import Profile from '../userLoggedIn/Profile'
 import SignupRoute from './app/routes/signup.tsx'
 import Newpassword from '../loginsignup/Newpassword.tsx'
+//import ProfileTab from 'userLoggedIn/tabs/ProfileTab.tsx'
+//import PreferenceTab from 'userLoggedIn/tabs/PreferenceTab.tsx'
+//import AccountTab from 'userLoggedIn/tabs/AccountTab.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
