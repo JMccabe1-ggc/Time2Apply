@@ -1,10 +1,7 @@
-
 import "./Jobcard.css";
-const goToPosting = () => {
-    window.open("https://jmccabe1.domains.ggc.edu/", "_blank");
-};
 
 type JobcardProps = {
+    id: number;
     jobTitle: string;
     companyName: string;
     location: string;
@@ -19,9 +16,12 @@ type JobcardProps = {
     applied: boolean;
     jobPostedDate: string;
     description?: string;
+    applyUrl?: string;
+    onSelect?: (id: number) => void;
 };
 
 const Jobcard = ({
+    id,
     jobTitle,
     companyName,
     location,
@@ -31,6 +31,8 @@ const Jobcard = ({
     pay,
     applied,
     jobPostedDate,
+    applyUrl,
+    onSelect,
 }: JobcardProps) => {
     const formattedPay = pay
         ? `${pay.currency} ${pay.min.toLocaleString()} - ${pay.max.toLocaleString()}`
@@ -39,14 +41,26 @@ const Jobcard = ({
         ? new Date(jobPostedDate).toLocaleDateString()
         : "Date unknown";
 
-    return(
-        <div className="jobcard">
+    const goToPosting = () => {
+        if (applyUrl) {
+            window.open(applyUrl, "_blank");
+        }
+    };
+
+    return (
+        <div className="jobcard" onClick={() => onSelect?.(id)}>
             <div className="jobcard-header">
                 <div>
                     <h3 className="jobcard-title">{jobTitle}</h3>
                     <p className="jobcard-company">{companyName}</p>
                 </div>
-                <button onClick={goToPosting} className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        goToPosting();
+                    }}
+                    className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}
+                >
                     {applied ? "Applied" : "Open"}
                 </button>
             </div>
@@ -61,7 +75,9 @@ const Jobcard = ({
                 <span className="jobcard-date">Posted {formattedDate}</span>
             </div>
             <div className="jobcard-footer">
-                <button className="jobcard-action" type="button">View role</button>
+                <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
+                    View role
+                </button>
                 <button className="jobcard-action jobcard-action--ghost" type="button">Save</button>
             </div>
         </div>
