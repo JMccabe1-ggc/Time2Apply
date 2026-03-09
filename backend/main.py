@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from config.client import supabase  
@@ -6,12 +6,13 @@ import re
 from datetime import datetime, timedelta
 import requests
 import os
+import fitz
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8001"],
+    allow_origins=["http://localhost:5173", "http://localhost:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,6 +31,57 @@ class LoginData(BaseModel):
 class JobSearchQuery(BaseModel):
     title: str
     location: str
+
+@app.post("/resume/upload")
+async def upload_resume(file: UploadFile = File(...)):
+
+    # validating
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code= 400, detail = "You uploaded non PDF file, only pdf files allowed")
+    
+    file_bytes = await file.read()
+
+    if len(file_bytes) > (5 * 1024 * 1024) :
+        raise HTTPException(status_code=400, detail="File size is too big")
+    
+    # extract the text
+    try:
+        doc = fitz.open(stream=file_bytes, filetype="pdf")
+        raw_text = ""
+        for text in doc:
+            raw_text += text.get_text()
+        doc.close()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid PDF file")
+    
+    if len(raw_text.strip()) < 100:
+        raise HTTPException(status_code=400, detail="Unreadable PDF")
+    
+    # Clean text
+    cleaned_text = re.sub(r'\s+', ' ', raw_text).strip()
+
+    # Deactivate old resumes
+    # supabase.table("resumes") \
+    #     .update({"is_active": False}) \
+    #     .eq("user_id", current_user.id) \
+    #     .execute()
+
+    # Insert new resume
+    insert_res = supabase.table("resumes").insert({
+        # "user_id": current_user.id,
+        "user_id": "4f81add4-3bf6-45d3-911a-2082d2b5ef51",
+        "file_name": file.filename,
+        "file_size": len(file_bytes),
+        "file_path": "file_path",
+        "raw_text": raw_text,
+        "cleaned_text": cleaned_text,
+        "is_active": True
+    }).execute()
+
+    return {
+        "message": "Resume uploaded successfully",
+        "resume_id": insert_res.data[0]["id"]
+    }
 
 @app.post("/jobs/search")
 def search_job(data: JobSearchQuery):
