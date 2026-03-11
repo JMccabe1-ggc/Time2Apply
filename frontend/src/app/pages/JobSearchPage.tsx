@@ -49,6 +49,7 @@ const JobSearchPage = () => {
               type="text"
               name="search"
               id="search"
+              placeholder="e.g. Software Engineer"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
