@@ -1,0 +1,167 @@
+.account-tab {
+    width: min(100%, 920px);
+    margin: 1.5rem auto;
+    border: 1px solid #d6dbe4;
+    border-radius: 18px;
+    background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
+    box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.45);
+    overflow: hidden;
+}
+
+.account-tab__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.4rem 1.5rem;
+    color: #f8fafc;
+    background: linear-gradient(130deg, #0f172a 0%, #1e293b 100%);
+}
+
+.account-tab__avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #09313a;
+    background: linear-gradient(145deg, #2dd4bf 0%, #38bdf8 100%);
+    box-shadow: 0 10px 22px -8px rgba(56, 189, 248, 0.85);
+}
+
+.account-tab__title {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.2;
+}
+
+.account-tab__subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.93rem;
+    color: #cbd5e1;
+}
+
+.account-tab__identity,
+.account-tab__email {
+    margin: 0.35rem 0 0;
+    font-size: 0.84rem;
+    color: #bae6fd;
+}
+
+.account-tab__content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1.2rem 1.5rem 1.4rem;
+}
+
+.account-tab__card {
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.account-tab__card-title {
+    margin: 0;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.account-tab__card-text {
+    margin: 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.account-tab__meta {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.83rem;
+}
+
+.account-tab__actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.account-tab__button {
+    border: none;
+    border-radius: 10px;
+    padding: 0.62rem 0.95rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.account-tab__button:hover {
+    transform: translateY(-1px);
+}
+
+.account-tab__button--primary {
+    background: linear-gradient(145deg, #0f766e 0%, #0891b2 100%);
+    color: #f8fafc;
+    box-shadow: 0 10px 20px -14px rgba(8, 145, 178, 0.85);
+}
+
+.account-tab__button--secondary {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.account-tab__button--danger {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.account-tab__pill {
+    width: fit-content;
+    margin: 0;
+    padding: 0.35rem 0.62rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.account-tab__pill--enabled {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.account-tab__pill--disabled {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.account-tab__status {
+    margin: 0 1.5rem 1.4rem;
+    border: 1px solid #99f6e4;
+    border-radius: 10px;
+    background: #f0fdfa;
+    color: #0f766e;
+    font-size: 0.84rem;
+    padding: 0.62rem 0.72rem;
+}
+
+@media (max-width: 720px) {
+    .account-tab__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-tab__content {
+        grid-template-columns: 1fr;
+    }
+
+    .account-tab__button {
+        width: 100%;
+    }
+}

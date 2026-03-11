@@ -2,7 +2,7 @@
 const SavedJobsTab = () => {
     return(
         <>
-        <h1>Saved Jobs Tab</h1>
+        <h1>Saved Jobs</h1>
         </>
     );
 };
