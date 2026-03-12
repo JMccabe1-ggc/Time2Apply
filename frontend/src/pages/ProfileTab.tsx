@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import "./ProfileTab.css";
+import "../components/ui/ProfileTab.css";
 
 type ProfileFormState = {
     location: string;

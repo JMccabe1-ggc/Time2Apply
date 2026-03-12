@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Header from "./Header";
-import "./Applications.css";
+import Header from "@/components/Header";
+import "../components/ui/Applications.css";
 
 type ApplicationStatus = "applied" | "interviewing" | "rejected" | "accepted" | "no-response";
 

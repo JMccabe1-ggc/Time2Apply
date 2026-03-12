@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Header from "../../../userLoggedIn/Header.tsx";
-import Jobcard from "../../components/ui/Jobcard.tsx";
-import { useJobs } from "../../hooks/useJobs.ts";
-import { useJobFilters } from "../../hooks/useJobFilters.ts";
-import "./JobSearchPage.css";
-import { Slider } from "../../components/ui/slider.tsx";
+import Header from "../components/Header.tsx";
+import Jobcard from "../components/Jobcard.tsx";
+import { useJobs } from "../hooks/useJobs.ts";
+import { useJobFilters } from "../hooks/useJobFilters.ts";
+import "../components/ui/JobSearchPage.css";
+import { Slider } from "../components/ui/slider.tsx";
 
 const JobSearchPage = () => {
   const {
