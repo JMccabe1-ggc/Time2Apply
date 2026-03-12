@@ -1,9 +1,9 @@
 import { useState } from "react";
-import ProfileTab from "./tabs/ProfileTab";
-import PreferenceTab from "./tabs/PreferenceTab";
-import AccountTab from "./tabs/AccountTab";
-import SavedJobsTab from "./tabs/SavedJobs";
-import "./TabHolder.css";
+import ProfileTab from "./ProfileTab";
+import PreferenceTab from "./PreferenceTab";
+import AccountTab from "./AccountTab";
+import SavedJobsTab from "./SavedJobs";
+import "../components/ui/TabHolder.css";
 
 type TabName = "profile" | "preferences" | "account" | "saved";
 

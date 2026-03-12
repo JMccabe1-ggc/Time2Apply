@@ -1,5 +1,5 @@
-import Header from "./Header";
-import "./Resume.css";
+import Header from "@/components/Header";
+import "../components/ui/Resume.css";
 
 const Resume = () => {
 

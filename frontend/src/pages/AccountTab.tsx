@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import "./AccountTab.css";
+import "../components/ui/AccountTab.css";
 
 const AccountTab = () => {
     const navigate = useNavigate();

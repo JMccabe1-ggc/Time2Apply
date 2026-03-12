@@ -1,4 +1,4 @@
-import "./Jobcard.css";
+import "./ui/Jobcard.css";
 
 type JobcardProps = {
     id: number;

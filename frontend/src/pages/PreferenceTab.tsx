@@ -1,6 +1,6 @@
 //import "../Profile.css";
 import CreatableSelect from "react-select/creatable";
-import Header from "../Header";
+import Header from "../components/Header";
 import { useState } from "react";
 import type { MultiValue } from "react-select";
 const PreferenceTab = () => {
