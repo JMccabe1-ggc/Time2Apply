@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import "../components/ui/AccountTab.css";
+import supabase from "@/lib/supabase";
 
 const AccountTab = () => {
     const navigate = useNavigate();
@@ -8,16 +9,52 @@ const AccountTab = () => {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [statusMessage, setStatusMessage] = useState("");
 
-    const fakeUserData = {
-        firstName: "John",
-        lastName: "Doe",
-        email: "a@a.com",
+    const [userInfo, setUserInfo] = useState({
+        fullName: "User",
+        email: "",
         role: "Job Seeker",
-        lastLogin: "Today at 9:14 AM",
+        lastLogin: "",
+        profilePicture: "",
+ });
+ useEffect(() => {
+    const loadAccountData = async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData?.session?.user;
+
+      if (!user) return;
+
+      const { data: profileData, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading profile:", error.message);
+        return;
+      }
+
+      setUserInfo({
+        fullName: profileData?.full_name || "User",
+        email: profileData?.email || user.email || "",
+        role: profileData?.current_title || "Job Seeker",
+        lastLogin: user.last_sign_in_at
+          ? new Date(user.last_sign_in_at).toLocaleString()
+          : "Unknown",
+        profilePicture: profileData?.profile_picture || "",
+      });
     };
 
-    const fullName = `${fakeUserData.firstName} ${fakeUserData.lastName}`;
-    const initials = `${fakeUserData.firstName[0]}${fakeUserData.lastName[0]}`;
+    loadAccountData();
+  }, []);
+    const initials =
+    userInfo.fullName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "U";
 
     const handleToggleMfa = () => {
         const nextValue = !mfaEnabled;
@@ -31,23 +68,34 @@ const AccountTab = () => {
         setStatusMessage(`Security notifications ${nextValue ? "enabled" : "disabled"}.`);
     };
 
-    const handleSignOutEverywhere = () => {
+    const handleSignOutEverywhere = async () => {
+        await supabase.auth.signOut({ scope: "global" });
         setStatusMessage("Signed out from all other devices.");
+         navigate("/login");
     };
 
     return (
         <section className="account-tab" aria-labelledby="account-tab-title">
             <header className="account-tab__header">
                 <div className="account-tab__avatar" aria-hidden="true">
-                    {initials}
+                    {userInfo.profilePicture ? (
+                    <img
+                    src={userInfo.profilePicture}
+                    alt="Profile"
+                    className="account-tab__avatar-image"
+                    />
+                ) : (
+                    initials
+                )}
+
                 </div>
                 <div>
                     <h2 id="account-tab-title" className="account-tab__title">
                         Account Settings
                     </h2>
                     <p className="account-tab__subtitle">Manage your sign-in security and account access.</p>
-                    <p className="account-tab__identity">{fullName} · {fakeUserData.role}</p>
-                    <p className="account-tab__email">{fakeUserData.email}</p>
+                    <p className="account-tab__identity">{userInfo.fullName} · {userInfo.role}</p>
+                    <p className="account-tab__email">{userInfo.email}</p>
                 </div>
             </header>
 
@@ -79,7 +127,7 @@ const AccountTab = () => {
                 <section className="account-tab__card" aria-labelledby="sessions-heading">
                     <h3 id="sessions-heading" className="account-tab__card-title">Sessions and Alerts</h3>
                     <p className="account-tab__card-text">Control active sessions and receive notifications for sensitive activity.</p>
-                    <p className="account-tab__meta">Last account access: {fakeUserData.lastLogin}</p>
+                    <p className="account-tab__meta">Last account access: {userInfo.lastLogin}</p>
                     <div className="account-tab__actions-row">
                         <button
                             type="button"
