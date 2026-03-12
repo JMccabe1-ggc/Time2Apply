@@ -15,7 +15,7 @@ export default function Newpassword() {
 
    const checkPassword = (password: string) => {
   return {
-    length: password.length >= 8,
+    length: password.length >= 12,
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
@@ -95,7 +95,7 @@ const getRuleBadgeClass = (isMet: boolean) => {
     if (password !== confirmPassword) return setMsg("Passwords do not match.");
       if (password.length < 12) return setMsg("Password must be at least 12 characters.");
     const hasUpperCase = /[A-Z]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\-\\[\]\\\/`~+=;'"]/g.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\-\\[\]\\/`~+=;'"]/g.test(password);
     const hasNumber = /[0-9]/.test(password);
     if (!hasUpperCase || !hasSpecialChar || !hasNumber) {
       return setMsg("Password must include an uppercase letter, a special character, and a number.");
@@ -138,7 +138,7 @@ const getRuleBadgeClass = (isMet: boolean) => {
                   >
                     {rules.length ? "✓" : "•"}
                   </span>
-                  At least 8 characters
+                  At least 12 characters
                 </li>
 
                 <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.uppercase)}`}>

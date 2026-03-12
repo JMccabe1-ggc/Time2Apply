@@ -23,7 +23,7 @@ const ProfileTab = () => {
   });
   const [selectedFileName, setSelectedFileName] = useState("No image selected");
   const [savedMessage, setSavedMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   const [userInfo, setUserInfo] = useState({
     fullName: "",
@@ -195,10 +195,6 @@ const ProfileTab = () => {
     setLoading(false);
   };
 
-  const handleCancel = () => {
-    setSavedMessage("");
-    setSelectedFileName("No image selected");
-  };
     return (
         <section className="profile-tab" aria-labelledby="profile-tab-title">
             <div className="profile-tab__header">

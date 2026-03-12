@@ -1,6 +1,5 @@
 //import "../Profile.css";
 import CreatableSelect from "react-select/creatable";
-import Header from "../components/Header";
 import {useEffect, useState } from "react";
 import type { MultiValue } from "react-select";
 import supabase from "@/lib/supabase";

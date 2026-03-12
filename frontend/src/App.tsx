@@ -7,7 +7,7 @@ export default function App() {
       {/* Navigation */}
       <nav className="border-b border-slate-700">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/*">
+          <Link to="/">
           <h2 className="text-2xl font-bold text-white">Time2Apply</h2>
           </Link>
           <div className="flex gap-4">

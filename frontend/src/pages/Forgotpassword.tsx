@@ -1,15 +1,10 @@
 import supabase from "@/lib/supabase";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
 const Forgotpassword = () => {
-  const navigate = useNavigate();
-  const goToNewPassword = () => {
-    navigate("/newpassword");
-  };
-
   const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
 
   const sendReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +25,6 @@ const Forgotpassword = () => {
       "If an account exists for that email, you’ll receive a reset link shortly.",
     );
   };
-  const [msg, setMsg] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">

@@ -53,12 +53,6 @@ const SavedJobsTab = () => {
     fetchSavedJobs();
   }, []);
 
-  const handleOpenJob = (url: string | null) => {
-    if (url) {
-      window.open(url, "_blank");
-    }
-  };
-
   const handleUnsave = async (savedId: string) => {
     const { error } = await supabase
       .from("saved_jobs")
@@ -67,21 +61,6 @@ const SavedJobsTab = () => {
 
     if (error) {
       console.error("Error unsaving job:", error.message);
-      alert(error.message);
-      return;
-    }
-
-    fetchSavedJobs();
-  };
-
-  const handleMarkApplied = async (savedId: string) => {
-    const { error } = await supabase
-      .from("saved_jobs")
-      .update({ status: "applied" })
-      .eq("id", savedId);
-
-    if (error) {
-      console.error("Error updating status:", error.message);
       alert(error.message);
       return;
     }

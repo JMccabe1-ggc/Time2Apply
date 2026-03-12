@@ -16,7 +16,6 @@ const JobSearchPage = () => {
     setSearchTerm,
     locationTerm,
     setLocationTerm,
-    fetchJobs,
   } = useJobs();
 
   const {
@@ -33,7 +32,7 @@ const JobSearchPage = () => {
     applyFilters,
   } = useJobFilters();
 
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [, setSelectedJobId] = useState<number | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<string[]>([]); 
   const filteredJobs = applyFilters(jobs);
 const fetchSavedJobs = async () => {
@@ -63,7 +62,6 @@ useEffect(() => {
 const handleSaveJob = async (job: any) => {
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
-  console.log("REAL JOB:", job);
 
   if (!user) {
     alert("Please log in first");
