@@ -1,4 +1,4 @@
-//import "../Profile.css";
+import "../components/ui/Profile.css";
 import CreatableSelect from "react-select/creatable";
 import Header from "../components/Header";
 import {useEffect, useState } from "react";
@@ -145,17 +145,17 @@ const handleSavePreferences = async () => {
 };
     return(
         <>
-        <div className="profile-page">
-            <main className="profile-main">
                 <section className="profile-card">
+                  <header className="profile-header">
                     <div className="profile-header">
                         <h1 className="profile-title">Profile Preferences</h1>
                         <p className="profile-subtitle">
                             Add target roles so job recommendations and filters can match your search goals.
                         </p>
                     </div>
-
+                  </header>
                     <div className="profile-fields">
+
                         <div className="profile-field">
                             <label className="profile-label">Preferred Job Titles</label>
                             <CreatableSelect<PreferenceOption, true>
@@ -230,8 +230,6 @@ const handleSavePreferences = async () => {
 
                         </div>
                 </section>
-            </main>
-        </div>
         </>
     );
 };
