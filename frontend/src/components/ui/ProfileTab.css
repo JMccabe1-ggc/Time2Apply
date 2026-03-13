@@ -1,5 +1,5 @@
 .profile-tab {
-    width: min(100%, 900px);
+    width: auto;
     margin: 1.5rem auto;
     border: 1px solid #d6dbe4;
     border-radius: 18px;
