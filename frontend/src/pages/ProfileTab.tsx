@@ -1,70 +1,241 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import supabase from "@/lib/supabase";
 import "../components/ui/ProfileTab.css";
 
 type ProfileFormState = {
-    location: string;
-    role: string;
-    bio: string;
-    goals: string;
-    linkedIn: string;
+  fullName: string;
+  location: string;
+  role: string;
+  bio: string;
+  goals: string;
+  linkedIn: string;
+  github?: string;
 };
 
 const ProfileTab = () => {
-    const fakeUserData = {
-        firstName: "John",
-        lastName: "Doe",
-        email: "a@a.com",
+  const [formState, setFormState] = useState<ProfileFormState>({
+    fullName: "",
+    location: "",
+    role: "",
+    bio: "",
+    goals: "",
+    linkedIn: "",
+  });
+  const [selectedFileName, setSelectedFileName] = useState("No image selected");
+  const [savedMessage, setSavedMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [userInfo, setUserInfo] = useState({
+    fullName: "",
+    email: "",
+    initials: "",
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState("");
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData?.session?.user;
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const authFullName =
+        user.user_metadata?.full_name ||
+        `${user.user_metadata?.first_name ?? ""} ${user.user_metadata?.last_name ?? ""}`.trim() ||
+        "User";
+      const displayName = formState.fullName || userInfo.fullName || "User";
+
+      const initials = displayName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part: string) => part[0])
+        .join("")
+        .toUpperCase();
+
+      setUserInfo({
+        fullName: authFullName,
+        email: user.email ?? "",
+        initials: initials || "U",
+      });
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading profile:", error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data) {
+        setFormState({
+          fullName: data.full_name ?? "",
+          location: data.location ?? "",
+          role: data.current_title ?? "",
+          bio: data.bio ?? "",
+          goals: data.career_goals ?? "",
+          linkedIn: data.linkedin ?? "",
+        });
+          if (data.profile_picture) {
+        setProfilePictureUrl(data.profile_picture);
+        }
+
+        if (data.full_name) {
+          const dbInitials = data.full_name
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part: string) => part[0])
+            .join("")
+            .toUpperCase();
+
+          setUserInfo({
+            fullName: data.full_name,
+            email: data.email ?? user.email ?? "",
+            initials: dbInitials || initials || "U",
+          });
+        }
+      }
+
+      setLoading(false);
     };
 
-    const [formState, setFormState] = useState<ProfileFormState>({
-        location: "Austin, TX",
-        role: "Software Engineer",
-        bio: "I am a full-stack developer focused on clean architecture, measurable outcomes, and reliable delivery.",
-        goals: "Move into a senior role and contribute to a product team with strong engineering standards.",
-        linkedIn: "https://www.linkedin.com/in/johndoe",
-    });
-    const [selectedFileName, setSelectedFileName] = useState("No image selected");
-    const [savedMessage, setSavedMessage] = useState("");
+    loadProfile();
+  }, []);
 
-    const fullName = `${fakeUserData.firstName} ${fakeUserData.lastName}`;
-    const initials = `${fakeUserData.firstName[0]}${fakeUserData.lastName[0]}`;
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    setFormState((previousState) => ({
+      ...previousState,
+      [name]: value,
+    }));
+    setSavedMessage("");
+  };
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = event.target;
-        setFormState((previousState) => ({
-            ...previousState,
-            [name]: value,
-        }));
-        setSavedMessage("");
-    };
+ const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    setSelectedFile(file);
+    setSelectedFileName(file?.name ?? "No image selected");
+    setSavedMessage("");
+};
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const fileName = event.target.files?.[0]?.name;
-        setSelectedFileName(fileName ?? "No image selected");
-        setSavedMessage("");
-    };
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSavedMessage("");
+    setLoading(true);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setSavedMessage("Profile updates saved.");
-    };
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData?.session?.user;
 
+    if (!user) {
+      setSavedMessage("You must be logged in.");
+      setLoading(false);
+      return;
+    }
+    let uploadedProfilePictureUrl = profilePictureUrl;
+
+    if (selectedFile) {
+    const filePath = `${user.id}/${Date.now()}-${selectedFile.name}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("profile-pictures")
+      .upload(filePath, selectedFile, { upsert: true });
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError.message);
+      setSavedMessage(`Error: ${uploadError.message}`);
+      setLoading(false);
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("profile-pictures")
+      .getPublicUrl(filePath);
+
+    uploadedProfilePictureUrl = publicUrlData.publicUrl;
+  }
+
+  const { error } = await supabase.from("profiles").upsert(
+    {
+      user_id: user.id,
+      full_name: formState.fullName,
+      current_title: formState.role,
+        email: userInfo.email,
+        bio: formState.bio,
+        location: formState.location,
+        career_goals: formState.goals,
+        linkedin: formState.linkedIn,
+        profile_picture: uploadedProfilePictureUrl,
+      },
+      {
+        onConflict: "user_id",
+      }
+    );
+
+    if (error) {
+      console.error("Error saving profile:", error.message);
+      setSavedMessage(`Error: ${error.message}`);
+    } else {
+      setSavedMessage("Profile updates saved.");
+      setProfilePictureUrl(uploadedProfilePictureUrl);
+    }
+
+    setLoading(false);
+  };
+
+  const handleCancel = () => {
+    setSavedMessage("");
+    setSelectedFileName("No image selected");
+  };
     return (
         <section className="profile-tab" aria-labelledby="profile-tab-title">
             <div className="profile-tab__header">
                 <div className="profile-tab__avatar" aria-hidden="true">
-                    {initials}
+                   {profilePictureUrl ? (
+                 <img
+                 src={profilePictureUrl}
+                  alt="Profile"
+                  className="profile-tab__avatar-image"
+                     />
+                      ) : (
+                        <span className="profile-tab__avatar-initials">
+                          {userInfo.initials}
+                        </span>
+                      )}
                 </div>
                 <div>
                     <h2 id="profile-tab-title" className="profile-tab__title">
-                        {fullName}
+                         {formState.fullName || userInfo.fullName || "Your Profile"}
                     </h2>
                     <p className="profile-tab__subtitle">Keep your details up to date for better job matches.</p>
-                    <p className="profile-tab__email">{fakeUserData.email}</p>
+                    <p className="profile-tab__email">{userInfo.email || "No email provided"}</p>
                 </div>
             </div>
 
             <form className="profile-tab__form" onSubmit={handleSubmit}>
+                <label className="profile-tab__field" htmlFor="fullName">
+                <span>Full Name</span>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  value={formState.fullName}
+                  onChange={handleInputChange}
+                  placeholder="Your full name"
+                  />
+</label>
                 <div className="profile-tab__grid">
                     <label className="profile-tab__field" htmlFor="location">
                         <span>Location</span>
@@ -127,15 +298,15 @@ const ProfileTab = () => {
                     />
                 </label>
 
-                <label className="profile-tab__field" htmlFor="linkedIn">
-                    <span>LinkedIn Profile</span>
+                <label className="profile-tab__field" htmlFor="github">
+                    <span>GitHub Profile</span>
                     <input
-                        id="linkedIn"
-                        name="linkedIn"
+                        id="github"
+                        name="github"
                         type="url"
-                        value={formState.linkedIn}
+                        value={formState.github}
                         onChange={handleInputChange}
-                        placeholder="https://www.linkedin.com/in/username"
+                        placeholder="https://www.github.com/in/username"
                     />
                 </label>
 

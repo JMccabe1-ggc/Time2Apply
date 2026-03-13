@@ -1,10 +1,11 @@
-import { useState } from "react";
+import {useEffect, useState } from "react";
 import Header from "../components/Header.tsx";
 import Jobcard from "../components/Jobcard.tsx";
 import { useJobs } from "../hooks/useJobs.ts";
 import { useJobFilters } from "../hooks/useJobFilters.ts";
 import "../components/ui/JobSearchPage.css";
 import { Slider } from "../components/ui/slider.tsx";
+import supabase from "@/lib/supabase";
 
 const JobSearchPage = () => {
   const {
@@ -33,9 +34,87 @@ const JobSearchPage = () => {
   } = useJobFilters();
 
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-
+  const [savedJobIds, setSavedJobIds] = useState<string[]>([]); 
   const filteredJobs = applyFilters(jobs);
+const fetchSavedJobs = async () => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
 
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("saved_jobs")
+    .select("job_id")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error fetching saved jobs:", error.message);
+    return;
+  }
+
+  if (data) {
+    setSavedJobIds(data.map((item) => String(item.job_id)));
+  }
+};
+useEffect(() => {
+  fetchSavedJobs();
+}, []);
+
+const handleSaveJob = async (job: any) => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
+  console.log("REAL JOB:", job);
+
+  if (!user) {
+    alert("Please log in first");
+    return;
+  }
+
+const jobId = String(job.applyUrl);
+const alreadySaved = savedJobIds.includes(jobId);
+
+  if (alreadySaved) {
+    const { error } = await supabase
+      .from("saved_jobs")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("job_id", jobId);
+
+    if (error) {
+      console.error("Delete error:", error.message);
+      alert(error.message);
+      return;
+    }
+
+    setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
+    return;
+  }
+const formattedPay = job.pay
+  ? `${job.pay.currency} ${job.pay.min.toLocaleString()} - ${job.pay.max.toLocaleString()}`
+  : "Pay not listed";
+const { error } = await supabase.from("saved_jobs").insert({
+  user_id: user.id,
+  job_id: jobId,
+  title: job.title,
+  company: job.company,
+  location: job.location,
+  pay_text: formattedPay,
+  posted_date: job.datePosted,
+  apply_url: job.applyUrl,
+  job_type: job.jobType,
+  job_site: job.jobSite,
+  application_type: job.applicationType,
+  status: "saved",
+});
+
+  if (error) {
+    console.error("Insert error:", error.message);
+    alert(error.message);
+    return;
+  }
+
+  setSavedJobIds((prev) => [...prev, jobId]);
+};
   return (
     <div className="user-page">
       <Header />
@@ -267,6 +346,8 @@ const JobSearchPage = () => {
               description={job.description}
               applyUrl={job.applyUrl}
               onSelect={(id) => setSelectedJobId(id)}
+              onSave={() => handleSaveJob(job)}
+              isSaved={savedJobIds.includes(String(job.applyUrl))}
             />
           ))}
         </main>

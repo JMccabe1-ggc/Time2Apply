@@ -13,11 +13,14 @@ type JobcardProps = {
         max: number;
         currency: string;
     };
+      payText?: string;
     applied: boolean;
     jobPostedDate: string;
     description?: string;
     applyUrl?: string;
     onSelect?: (id: number) => void;
+     onSave: () => void;
+  isSaved: boolean;
 };
 
 const Jobcard = ({
@@ -29,14 +32,19 @@ const Jobcard = ({
     jobSite,
     applicationTypes,
     pay,
+    payText,
     applied,
     jobPostedDate,
     applyUrl,
     onSelect,
+     onSave,
+     isSaved,
 }: JobcardProps) => {
-    const formattedPay = pay
-        ? `${pay.currency} ${pay.min.toLocaleString()} - ${pay.max.toLocaleString()}`
-        : "Pay not listed";
+    const formattedPay = payText
+        ? payText
+        : pay
+            ? `${pay.currency} ${pay.min.toLocaleString()} - ${pay.max.toLocaleString()}`
+            : "Pay not listed";
     const formattedDate = jobPostedDate
         ? new Date(jobPostedDate).toLocaleDateString()
         : "Date unknown";
@@ -78,7 +86,9 @@ const Jobcard = ({
                 <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
                     View role
                 </button>
-                <button className="jobcard-action jobcard-action--ghost" type="button">Save</button>
+              <button className="jobcard-action jobcard-action--ghost" type="button" onClick={onSave}>
+                {isSaved ? "Unsave" : "Save"}
+              </button>
             </div>
         </div>
     );
