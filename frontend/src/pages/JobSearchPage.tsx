@@ -34,7 +34,8 @@ const JobSearchPage = () => {
   } = useJobFilters();
 
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [savedJobIds, setSavedJobIds] = useState<string[]>([]); 
+  const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const filteredJobs = applyFilters(jobs);
 const fetchSavedJobs = async () => {
   const { data: sessionData } = await supabase.auth.getSession();
@@ -44,7 +45,7 @@ const fetchSavedJobs = async () => {
 
   const { data, error } = await supabase
     .from("saved_jobs")
-    .select("job_id")
+    .select("job_id, status")
     .eq("user_id", user.id);
 
   if (error) {
@@ -54,6 +55,11 @@ const fetchSavedJobs = async () => {
 
   if (data) {
     setSavedJobIds(data.map((item) => String(item.job_id)));
+    setAppliedJobIds(
+      data
+        .filter((item) => item.status === "applied")
+        .map((item) => String(item.job_id)),
+    );
   }
 };
 useEffect(() => {
@@ -87,6 +93,7 @@ const alreadySaved = savedJobIds.includes(jobId);
     }
 
     setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
+    setAppliedJobIds((prev) => prev.filter((id) => id !== jobId));
     return;
   }
 const formattedPay = job.pay
@@ -115,6 +122,34 @@ const { error } = await supabase.from("saved_jobs").insert({
 
   setSavedJobIds((prev) => [...prev, jobId]);
 };
+
+const handleMarkApplied = async (job: any) => {
+  const jobId = String(job.applyUrl);
+
+  setAppliedJobIds((prev) => (prev.includes(jobId) ? prev : [...prev, jobId]));
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
+
+  if (!user) {
+    return;
+  }
+
+  if (savedJobIds.includes(jobId)) {
+    const { error } = await supabase
+      .from("saved_jobs")
+      .update({ status: "applied" })
+      .eq("user_id", user.id)
+      .eq("job_id", jobId);
+
+    if (error) {
+      console.error("Update error:", error.message);
+      alert(error.message);
+      return;
+    }
+  }
+};
+
   return (
     <div className="user-page">
       <Header />
@@ -341,12 +376,13 @@ const { error } = await supabase.from("saved_jobs").insert({
               jobSite={job.jobSite}
               applicationTypes={job.applicationType}
               pay={job.pay}
-              applied={job.applied}
+              applied={job.applied || appliedJobIds.includes(String(job.applyUrl))}
               jobPostedDate={job.datePosted}
               description={job.description}
               applyUrl={job.applyUrl}
               onSelect={(id) => setSelectedJobId(id)}
               onSave={() => handleSaveJob(job)}
+              onApply={() => handleMarkApplied(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}
             />
           ))}

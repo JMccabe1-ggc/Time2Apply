@@ -113,6 +113,7 @@ const SavedJobsTab = () => {
     applyUrl={job.apply_url ?? undefined}
     onSelect={() => {}}
     onSave={() => handleUnsave(job.id)}
+    onApply={() => handleMarkApplied(job.id)}
     isSaved={true}
   />
 ))}
