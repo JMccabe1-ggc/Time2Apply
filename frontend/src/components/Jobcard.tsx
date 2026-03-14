@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./ui/Jobcard.css";
 
 type JobcardProps = {
@@ -19,8 +20,9 @@ type JobcardProps = {
     description?: string;
     applyUrl?: string;
     onSelect?: (id: number) => void;
-     onSave: () => void;
-  isSaved: boolean;
+        onSave: () => void;
+        isSaved: boolean;
+        onApply?: () => void;
 };
 
 const Jobcard = ({
@@ -37,9 +39,12 @@ const Jobcard = ({
     jobPostedDate,
     applyUrl,
     onSelect,
-     onSave,
-     isSaved,
+    onSave,
+    isSaved,
+    onApply,
 }: JobcardProps) => {
+    const [showApplyPopup, setShowApplyPopup] = useState(false);
+
     const formattedPay = payText
         ? payText
         : pay
@@ -56,41 +61,70 @@ const Jobcard = ({
     };
 
     return (
-        <div className="jobcard" onClick={() => onSelect?.(id)}>
-            <div className="jobcard-header">
-                <div>
-                    <h3 className="jobcard-title">{jobTitle}</h3>
-                    <p className="jobcard-company">{companyName}</p>
+        <>
+            <div className="jobcard" onClick={() => onSelect?.(id)}>
+                <div className="jobcard-header">
+                    <div>
+                        <h3 className="jobcard-title">{jobTitle}</h3>
+                        <p className="jobcard-company">{companyName}</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            goToPosting();
+                            setShowApplyPopup(true);
+                        }}
+                        className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}
+                    >
+                        {applied ? "Applied" : "Open"}
+                    </button>
                 </div>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        goToPosting();
-                    }}
-                    className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}
-                >
-                    {applied ? "Applied" : "Open"}
-                </button>
+                <div className="jobcard-badges">
+                    {jobType && <span className="jobcard-badge">{jobType}</span>}
+                    <span className="jobcard-badge jobcard-badge--muted">{jobSite}</span>
+                    <span className="jobcard-badge jobcard-badge--muted">{applicationTypes}</span>
+                </div>
+                <div className="jobcard-meta">
+                    <span className="jobcard-location">{location}</span>
+                    <span className="jobcard-pay">{formattedPay}</span>
+                    <span className="jobcard-date">Posted {formattedDate}</span>
+                </div>
+                <div className="jobcard-footer">
+                    <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
+                        View role
+                    </button>
+                    <button className="jobcard-action jobcard-action--ghost" type="button" onClick={onSave}>
+                        {isSaved ? "Unsave" : "Save"}
+                    </button>
+                </div>
             </div>
-            <div className="jobcard-badges">
-                {jobType && <span className="jobcard-badge">{jobType}</span>}
-                <span className="jobcard-badge jobcard-badge--muted">{jobSite}</span>
-                <span className="jobcard-badge jobcard-badge--muted">{applicationTypes}</span>
-            </div>
-            <div className="jobcard-meta">
-                <span className="jobcard-location">{location}</span>
-                <span className="jobcard-pay">{formattedPay}</span>
-                <span className="jobcard-date">Posted {formattedDate}</span>
-            </div>
-            <div className="jobcard-footer">
-                <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
-                    View role
-                </button>
-              <button className="jobcard-action jobcard-action--ghost" type="button" onClick={onSave}>
-                {isSaved ? "Unsave" : "Save"}
-              </button>
-            </div>
-        </div>
+
+            {showApplyPopup && (
+                <div className="apply-popup" onClick={() => setShowApplyPopup(false)}>
+                    <div className="apply-popup-card" onClick={(e) => e.stopPropagation()}>
+                        <p>Did you apply?</p>
+                        <div className="apply-popup-actions">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowApplyPopup(false);
+                                    onApply?.();
+                                }}
+                            >
+                                Yes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowApplyPopup(false)}
+                            >
+                                No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 
