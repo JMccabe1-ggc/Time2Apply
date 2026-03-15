@@ -11,6 +11,7 @@ import Resume from './pages/Resume.tsx'
 import Profile from './pages/Profile.tsx'
 import SignupPage from './pages/SignupPage.tsx'
 import Newpassword from './pages/Newpassword.tsx'
+import Location from './pages/Location.tsx'
 //import ProfileTab from 'userLoggedIn/tabs/ProfileTab.tsx'
 //import PreferenceTab from 'userLoggedIn/tabs/PreferenceTab.tsx'
 //import AccountTab from 'userLoggedIn/tabs/AccountTab.tsx'
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/resume" element={<Resume />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/newpassword" element={<Newpassword />} />
+      <Route path="/location" element={<Location />} />
     </Routes>
     </BrowserRouter>
   </StrictMode>,

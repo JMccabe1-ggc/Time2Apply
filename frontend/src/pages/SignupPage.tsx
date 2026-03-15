@@ -33,7 +33,7 @@ const SignupPage = () => {
       }
 
       setResponseMessage(data?.message || "Account created ✅");
-      navigate("/user");
+      navigate("/location");
     } catch (error) {
       setResponseMessage(
         error instanceof Error
