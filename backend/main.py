@@ -12,7 +12,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8000"],
+    allow_origins=["http://localhost:5173", "http://localhost:8001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -100,6 +100,7 @@ def search_job(data: JobSearchQuery):
 
     now = datetime.utcnow()
 
+    # check if table exist and still populated
     if existing.data:
         search_row = existing.data[0]
 
@@ -126,6 +127,7 @@ def search_job(data: JobSearchQuery):
     
     expires_at = now + timedelta(hours=12)
 
+    # This is if data exist but expired
     if existing.data:
         search_query_id = search_row["id"]
 
@@ -161,6 +163,7 @@ def search_job(data: JobSearchQuery):
                 "title": job["title"],
                 "company": job["company"],
                 "location": job["location"],
+                "publisher": job["publisher"],
                 "description": job["description"],
                 "salary_min": job.get("salary_min"),
                 "salary_max": job.get("salary_max"),
@@ -187,12 +190,13 @@ def search_job(data: JobSearchQuery):
         "jobs": api_jobs
     }
 
-def call_jsearch_api(query: str, location: str):
+def call_jsearch_api(query: str, location: str, radius: int = 25):
     url = "https://jsearch.p.rapidapi.com/search"
 
     query_string = {
         "query": query,
-        "location": location
+        "location": location,
+        "radius": radius
     }
 
     headers = {
@@ -215,6 +219,7 @@ def call_jsearch_api(query: str, location: str):
             "external_id": job.get("job_id"),
             "title": job.get("job_title"),
             "company": job.get("employer_name"),
+            "publisher": job.get("job_publisher"),
             "location": job.get("job_city"),
             "description": job.get("job_description"),
             "salary_min": job.get("job_min_salary"),
