@@ -11,6 +11,7 @@ type JobcardProps = {
     jobTitle: string;
     companyName: string;
     location: string;
+    publisher: string;
     jobType?: string;
     jobSite: string;
     applicationTypes: string;
@@ -35,6 +36,7 @@ const Jobcard = ({
     jobTitle,
     companyName,
     location,
+    publisher,
     jobType,
     jobSite,
     applicationTypes,
@@ -87,7 +89,7 @@ const Jobcard = ({
                 </div>
              <div className="jobcard-badges">
                 {jobType && <span className="jobcard-badge">{jobType}</span>}
-                <span className="jobcard-badge jobcard-badge--muted">{jobSite}</span>
+                <span className="jobcard-badge jobcard-badge--muted">{publisher}</span>
                 <span className="jobcard-badge jobcard-badge--muted">{applicationTypes}</span>
             </div>
             <div className="jobcard-meta">
