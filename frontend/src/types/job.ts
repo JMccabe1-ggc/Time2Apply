@@ -8,6 +8,7 @@ export interface Job {
     id: number;
     title: string;
     company: string;
+    publisher: string;
     location: string;
     jobType: string;
     jobSite: string;

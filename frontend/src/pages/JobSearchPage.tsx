@@ -117,6 +117,7 @@ const { error } = await supabase.from("saved_jobs").insert({
   job_id: jobId,
   title: job.title,
   company: job.company,
+  publisher:job.publisher,
   location: job.location,
   pay_text: formattedPay,
   posted_date: job.datePosted,
@@ -400,6 +401,7 @@ const handleMarkApplied = async (job: any) => {
               id={job.id}
               jobTitle={job.title}
               companyName={job.company}
+              publisher={job.publisher}
               location={job.location}
               jobType={job.jobType}
               jobSite={job.jobSite}

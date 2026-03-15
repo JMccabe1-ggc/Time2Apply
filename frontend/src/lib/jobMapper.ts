@@ -16,5 +16,6 @@ export const mapApiResponseToJobs = (apiJobs: any[]): Job[] => {
         datePosted: job.posted_date || "",
         applyUrl: job.apply_url || "",
         description: job.description || "",
+        publisher: job.publisher || ""
     }));
 };
