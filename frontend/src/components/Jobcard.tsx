@@ -1,4 +1,9 @@
 import "./ui/Jobcard.css";
+import {
+  Clock,
+  MapPin,
+  DollarSign
+} from "lucide-react";
 
 type JobcardProps = {
     id: number;
@@ -43,7 +48,7 @@ const Jobcard = ({
     const formattedPay = payText
         ? payText
         : pay
-            ? `${pay.currency} ${pay.min.toLocaleString()} - ${pay.max.toLocaleString()}`
+            ? `${pay.currency} $${pay.min.toLocaleString()} - $${pay.max.toLocaleString()}`
             : "Pay not listed";
     const formattedDate = jobPostedDate
         ? new Date(jobPostedDate).toLocaleDateString()
@@ -56,7 +61,7 @@ const Jobcard = ({
     };
 
     return (
-        <div className="jobcard" onClick={() => onSelect?.(id)}>
+        <div className="jobcard space-y-4" onClick={() => onSelect?.(id)}>
             <div className="jobcard-header">
                 <div>
                     <h3 className="jobcard-title">{jobTitle}</h3>
@@ -78,9 +83,15 @@ const Jobcard = ({
                 <span className="jobcard-badge jobcard-badge--muted">{applicationTypes}</span>
             </div>
             <div className="jobcard-meta">
-                <span className="jobcard-location">{location}</span>
-                <span className="jobcard-pay">{formattedPay}</span>
-                <span className="jobcard-date">Posted {formattedDate}</span>
+                <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4"/>
+                <span className="jobcard-location">{location}</span></div>
+                <div className="flex items-center gap-1.5">
+                <DollarSign className="h-4 w-4"/>
+                <span className="jobcard-pay">{formattedPay}</span></div>
+                <div className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4"/>
+                <span className="jobcard-date">Posted {formattedDate}</span></div>
             </div>
             <div className="jobcard-footer">
                 <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
