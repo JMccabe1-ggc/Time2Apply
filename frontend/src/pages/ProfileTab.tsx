@@ -43,6 +43,7 @@ const ProfileTab = () => {
       setCities(stateCities);
     } else {
       setCities([]);
+      setSelectedCity("");
     }
   };
 
@@ -279,7 +280,7 @@ const ProfileTab = () => {
                         id="state"
                         value={selectedState}
                         onChange={handleStateChange}
-                        className=""
+                        className="profile-tab__select"
                         >
                             <option value="">Select a state</option>
                             {states.map((state) => (
@@ -293,8 +294,15 @@ const ProfileTab = () => {
 
                     <label className="profile-tab__field" htmlFor="city">
                         <span>City</span>
-                        <select name="city" id="city" value={selectedCity} onChange={handleCityChange} className="">
-                            <option value="">Select a city</option>
+                        <select
+                          name="city"
+                          id="city"
+                          value={selectedCity}
+                          onChange={handleCityChange}
+                          className="profile-tab__select"
+                          disabled={!selectedState}
+                        >
+                            <option value="">{selectedState ? "Select a city" : "Select a state first"}</option>
                             {cities.map((city) => (
                                 <option key={city.name} value={city.name}>
                                     {city.name}
@@ -384,7 +392,7 @@ const ProfileTab = () => {
                       onChange={handleFileChange}
                     />
                   </label>
-
+                    {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
                 <div className="profile-tab__actions">
                     <button type="submit" className="profile-tab__button profile-tab__button--primary">
                         Save Profile
