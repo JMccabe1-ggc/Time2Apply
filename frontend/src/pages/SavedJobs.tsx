@@ -17,6 +17,7 @@ type SavedJob = {
   status: string | null;
   notes: string | null;
   created_at: string | null;
+  publisher: string | null;
 };
 
 const SavedJobsTab = () => {
@@ -115,6 +116,7 @@ const SavedJobsTab = () => {
     onSave={() => handleUnsave(job.id)}
     onApply={() => handleMarkApplied(job.id)}
     isSaved={true}
+    publisher={job.publisher ?? "Unknown Publisher"}
   />
 ))}
     </>
