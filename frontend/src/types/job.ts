@@ -8,7 +8,6 @@ export interface Job {
     id: number;
     title: string;
     company: string;
-    publisher: string;
     location: string;
     jobType: string;
     jobSite: string;
@@ -18,6 +17,7 @@ export interface Job {
     datePosted: string;
     applyUrl: string;
     description: string;
+    publisher: string;
 }
 
 export interface SearchParams {
