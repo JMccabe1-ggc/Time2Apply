@@ -1,38 +1,226 @@
 alias,skill_name
-node,nodejs
-node.js,nodejs
-nodejs,nodejs
-amazon web services,aws
-aws cloud,aws
-gcp,google cloud
-google cloud platform,google cloud
-microsoft azure,azure
-vscode,visual studio code
-vs code,visual studio code
-js,javascript
-ts,typescript
 py,python
+python3,python
+python,python
+pymupdf,pymupdf
+jquery,jquery
+json,json
+spacy,spacy
+unity,unity
+ai,artificial intelligence
+artificial intelligence,artificial intelligence
+selenium,selenium
+selenium web driver,selenium
+java,java
+mockito,mockito
+junit,junit
+javascript,javascript
+js,javascript
+nodejs,nodejs
+node.js,nodejs
+node js,nodejs
+ecmascript,javascript
+typescript,typescript
+ts,typescript
+c++,c++
+c plus plus,c++
+cpp,c++
+c sharp,c#
+c-sharp,c#
+c#,c#
+golang,go
+go,go
+rb,ruby
+ruby,ruby
+shell,bash
+bash,bash
+sh,bash
+ps,powershell
+powershell,powershell
+html5,html
+html,html
+css3,css
+css,css
+react,react
+reactjs,react
+react.js,react
+angular,angular
+angularjs,angular
+angular.js,angular
+vue,vue
+vuejs,vue
+vue.js,vue
+next.js,next.js
+nextjs,next.js
+next js,next.js
+nuxtjs,nuxt.js
+nuxt js,nuxt.js
+django,django
+dj,django
+flask,flask
+flask api,flask
+fast api,fastapi
+fastapi,fastapi
+spring,spring
+spring framework,spring
+spring boot,spring boot
+springboot,spring boot
+spring-boot,spring boot
+express,express
+expressjs,express
+express.js,express
+nestjs,nestjs
+nestjs framework,nestjs
+asp.net,asp.net
+asp net,asp.net
+asp.net core,asp.net
+rails,rails
+ruby on rails,rails
+tensorflow,tensorflow
+tf,tensorflow
+tensorflow framework,tensorflow
+pytorch,pytorch
+torch,pytorch
+scikit-learn,scikit-learn
+scikit learn,scikit-learn
+sklearn,scikit-learn
+xgboost,xgboost
+xg boost,xgboost
+light gbm,lightgbm
+pandas,pandas
+pd,pandas
+numpy,numpy
+np,numpy
+matplotlib,matplotlib
+matplot,matplotlib
+seaborn,seaborn
+sns,seaborn
+apache spark,apache spark
+spark,apache spark
+apache-spark,apache spark
+hdfs,hadoop
+airflow dag,airflow
+kafka streams,kafka
+data build tool,dbt
+sql,sql
+postgresql,postgresql
 postgres,postgresql
+psql,postgresql
+mysql,mysql
+mysql db,mysql
+sqlite,sqlite
+sqlite3,sqlite
+mongodb,mongodb
 mongo,mongodb
 mongo db,mongodb
-redis db,redis
-tf,tensorflow
-torch,pytorch
-sklearn,scikit-learn
-spark,apache spark
+redis cache,redis
+cassandra,cassandra
+cassandra db,cassandra
+dynamodb,dynamodb
+dynamo,dynamodb
+neo4j graph,neo4j
+mariadb,mariadb
+maria db,mariadb
+oracle database,oracle database
+oracle,oracle database
+oracle db,oracle database
+mssql,sql server
+sqlserver,sql server
+firebase,firebase
+aws,aws
+amazon web services,aws
+aws cloud,aws
+google cloud,google cloud
+gcp,google cloud
+google cloud platform,google cloud
+azure,azure
+azure cloud,azure
+microsoft azure,azure
+do,digitalocean
+docker,docker
+docker container,docker
+kubernetes,kubernetes
 k8s,kubernetes
-ci/cd,continuous integration
-cd,continuous deployment
+terraform,terraform
+ansible automation,ansible
+jenkins pipeline,jenkins
+github ci,github actions
+github workflows,github actions
+gitlab pipeline,gitlab ci
+circle ci,circleci
+helm charts,helm
+linux os,linux
+windows,windows server
+git version control,git
+git,git
+github,github
+github repo,github
+gitlab repo,gitlab
+bb,bitbucket
+jira software,jira
+jira,jira
+confluence wiki,confluence
+slack app,slack
+postman api,postman
+postman,postman
+figma design,figma
+powerbi,power bi
+power bi,power bi
+vscode,visual studio code
+visual studio code,visual studio code
+vs code,visual studio code
+idea,intellij
+intellij,intellij
+intellij idea,intellij
+scrum agile,scrum
+scrum,scrum
+kanban board,kanban
 tdd,test driven development
-nlp,natural language processing
-cv,computer vision
-ml,machine learning
-dl,deep learning
+test-driven development,test driven development
+ci/cd,continuous integration
+ci cd,continuous integration
+continuous integration,continuous integration
+continuous delivery,continuous deployment
+continuous deployment,continuous deployment
+cd,continuous deployment
+cd pipeline,continuous deployment
+micro services,microservices
+micro-services,microservices
 restful api,rest api
-restful services,rest api
+rest api,rest api
+rest api services,rest api
+graphql api,graphql
+event-driven architecture,event driven architecture
+ml,machine learning
+machine-learning,machine learning
+dl,deep learning
+deep learning,deep learning
+nlp,natural language processing
+natural language processing,natural language processing
+computer vision,computer vision
+cv,computer vision
+data analytics,data analysis
+data analysis,data analysis
+data mining techniques,data mining
+feature extraction,feature engineering
+model serving,model deployment
+etl pipeline,etl
+data warehouse,data warehousing
+data warehousing,data warehousing
+frontend development,frontend development
 frontend,frontend development
+front-end,frontend development
+backend development,backend development
 backend,backend development
+back-end,backend development
+full stack development,full stack development
 fullstack,full stack development
+full-stack,full stack development
+android-development,android development
+android development,android development
 android,android development
 ios,ios development
+ios development,ios development
+react native,react native
 rn,react native
+react-native,react native
