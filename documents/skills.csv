@@ -17,6 +17,17 @@ r,programming_language
 matlab,programming_language
 bash,programming_language
 powershell,programming_language
+html,programming_language
+css,programming_language
+jquery,programming_language
+sql,programming_language
+artificial intelligence,framework
+selenium,framework
+mockito,framework
+junit,framework
+pymupdf,library
+json,library
+spacy,library
 react,framework
 angular,framework
 vue,framework
@@ -103,6 +114,7 @@ power bi,tool
 visual studio code,tool
 intellij,tool
 eclipse,tool
+unity,tool
 agile,methodology
 scrum,methodology
 kanban,methodology
