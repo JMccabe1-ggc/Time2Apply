@@ -1,0 +1,38 @@
+alias,skill_name
+node,nodejs
+node.js,nodejs
+nodejs,nodejs
+amazon web services,aws
+aws cloud,aws
+gcp,google cloud
+google cloud platform,google cloud
+microsoft azure,azure
+vscode,visual studio code
+vs code,visual studio code
+js,javascript
+ts,typescript
+py,python
+postgres,postgresql
+mongo,mongodb
+mongo db,mongodb
+redis db,redis
+tf,tensorflow
+torch,pytorch
+sklearn,scikit-learn
+spark,apache spark
+k8s,kubernetes
+ci/cd,continuous integration
+cd,continuous deployment
+tdd,test driven development
+nlp,natural language processing
+cv,computer vision
+ml,machine learning
+dl,deep learning
+restful api,rest api
+restful services,rest api
+frontend,frontend development
+backend,backend development
+fullstack,full stack development
+android,android development
+ios,ios development
+rn,react native
