@@ -1,0 +1,134 @@
+skill_name,category
+python,programming_language
+java,programming_language
+javascript,programming_language
+typescript,programming_language
+c,programming_language
+c++,programming_language
+c#,programming_language
+go,programming_language
+rust,programming_language
+ruby,programming_language
+php,programming_language
+swift,programming_language
+kotlin,programming_language
+scala,programming_language
+r,programming_language
+matlab,programming_language
+bash,programming_language
+powershell,programming_language
+react,framework
+angular,framework
+vue,framework
+next.js,framework
+nuxt.js,framework
+svelte,framework
+django,framework
+flask,framework
+fastapi,framework
+spring,framework
+spring boot,framework
+laravel,framework
+express,framework
+nestjs,framework
+asp.net,framework
+rails,framework
+tensorflow,ml_framework
+pytorch,ml_framework
+keras,ml_framework
+scikit-learn,ml_framework
+xgboost,ml_framework
+lightgbm,ml_framework
+pandas,data_science
+numpy,data_science
+matplotlib,data_science
+seaborn,data_science
+plotly,data_science
+scipy,data_science
+apache spark,data_engineering
+hadoop,data_engineering
+airflow,data_engineering
+kafka,data_engineering
+dbt,data_engineering
+snowflake,data_engineering
+bigquery,data_engineering
+redshift,data_engineering
+postgresql,database
+mysql,database
+sqlite,database
+mongodb,database
+redis,database
+cassandra,database
+dynamodb,database
+neo4j,database
+mariadb,database
+oracle database,database
+sql server,database
+firebase,database
+aws,cloud
+google cloud,cloud
+azure,cloud
+digitalocean,cloud
+heroku,cloud
+vercel,cloud
+netlify,cloud
+cloudflare,cloud
+docker,devops
+kubernetes,devops
+terraform,devops
+ansible,devops
+jenkins,devops
+github actions,devops
+gitlab ci,devops
+circleci,devops
+helm,devops
+nginx,devops
+apache server,devops
+linux,operating_system
+unix,operating_system
+windows server,operating_system
+git,tool
+github,tool
+gitlab,tool
+bitbucket,tool
+jira,tool
+confluence,tool
+slack,tool
+trello,tool
+notion,tool
+postman,tool
+figma,tool
+tableau,tool
+power bi,tool
+visual studio code,tool
+intellij,tool
+eclipse,tool
+agile,methodology
+scrum,methodology
+kanban,methodology
+test driven development,methodology
+continuous integration,methodology
+continuous deployment,methodology
+microservices,architecture
+rest api,architecture
+graphql,architecture
+event driven architecture,architecture
+machine learning,data_science
+deep learning,data_science
+natural language processing,data_science
+computer vision,data_science
+data analysis,data_science
+data mining,data_science
+feature engineering,data_science
+model deployment,data_science
+etl,data_engineering
+data warehousing,data_engineering
+api development,backend
+backend development,backend
+frontend development,frontend
+full stack development,fullstack
+mobile development,mobile
+android development,mobile
+ios development,mobile
+react native,mobile
+flutter,mobile

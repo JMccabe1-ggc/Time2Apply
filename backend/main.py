@@ -8,6 +8,8 @@ import requests
 import os
 import fitz
 
+from services.skill_extraction.extractor import extract_skills_from_text
+
 app = FastAPI()
 
 app.add_middleware(
@@ -61,10 +63,10 @@ async def upload_resume(file: UploadFile = File(...)):
     cleaned_text = re.sub(r'\s+', ' ', raw_text).strip()
 
     # Deactivate old resumes
-    # supabase.table("resumes") \
-    #     .update({"is_active": False}) \
-    #     .eq("user_id", current_user.id) \
-    #     .execute()
+    supabase.table("resumes") \
+        .update({"is_active": False}) \
+        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+        .execute()
 
     # Insert new resume
     insert_res = supabase.table("resumes").insert({
@@ -78,10 +80,34 @@ async def upload_resume(file: UploadFile = File(...)):
         "is_active": True
     }).execute()
 
+    resume_id =  insert_res.data[0]["id"]
+
+    skills = extract_skills_from_text(cleaned_text)
+
+    for skill in skills:
+
+        skill_row = (
+            supabase.table("skills")
+            .select("id")
+            .eq("skill_name", skill)
+            .single()
+            .execute()
+        )
+
+        skill_id = skill_row.data["id"]
+
+        supabase.table("resume_skills").insert({
+            "resume_id": resume_id,
+            "skill_id": skill_id
+        }).execute()
+
+
     return {
         "message": "Resume uploaded successfully",
-        "resume_id": insert_res.data[0]["id"]
+        "resume_id": resume_id,
+        "skills_extracted": skills
     }
+    
 
 @app.post("/jobs/search")
 def search_job(data: JobSearchQuery):
