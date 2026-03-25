@@ -14,6 +14,7 @@ import {
 import {
   Search,
   MapPin,
+  Briefcase
 } from "lucide-react";
 import supabase from "@/lib/supabase";
 import { JobDetailPanel } from "./JobDetailPanel.tsx";
@@ -76,8 +77,21 @@ const JobSearchPage = () => {
   }
 };
 useEffect(() => {
+  if (loading) return;
+
+  if (filteredJobs.length === 0) {
+    setSelectedJobId(null);
+    return;
+  }
+
+  const selectedStillExists = filteredJobs.some((job) => job.id === selectedJobId);
+
+  if (selectedJobId === null || !selectedStillExists) {
+    setSelectedJobId(filteredJobs[0].id);
+  }
+
   fetchSavedJobs();
-}, []);
+}, [loading, filteredJobs, selectedJobId]);
 
   const handleSaveJob = async (job: any) => {
     const { data: sessionData } = await supabase.auth.getSession();
@@ -387,11 +401,11 @@ const handleMarkApplied = async (job: any) => {
           </div>
         </aside>
 
-        {error && <p className="error-message">Error: {error}</p>}
-
         <main className="user-main">
-          <div className="return-count">
-            <span>{filteredJobs.length}</span> jobs found
+          {error && <p className="error-message">Error: {error}</p>}
+          <div className="return-count flex items-center justify-start gap-1 mt-2">
+            <Briefcase className="h-4 w-4 mr-1 shrink-0" />
+            <span className="leading-none">{filteredJobs.length}</span> <span className="leading-none">jobs found</span>
           </div>
           {loading && <p>Loading jobs...</p>}
           {!loading && filteredJobs.length === 0}
@@ -419,7 +433,7 @@ const handleMarkApplied = async (job: any) => {
           ))}
         </main>
 
-        <div>
+        <div className="user-details">
           <JobDetailPanel
             job={selectedJob}
             onClose={() => setSelectedJobId(null)}

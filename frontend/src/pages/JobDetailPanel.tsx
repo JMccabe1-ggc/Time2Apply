@@ -37,12 +37,12 @@ export function JobDetailPanel({
         : "Date unknown";  
 
   return (
-    <div className="w-full lg:w-[480px] shrink-0 border-l border-border bg-card">
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card p-4">
+    <div className="w-full lg:w-[480px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border rounded-xl bg-card p-4">
         <h2 className="font-semibold text-foreground">Job Details</h2>
-        <Button variant="outline" size="icon" onClick={onClose}>
+        {/* <Button variant="outline" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
 
       <div className="p-6 space-y-6">
@@ -88,10 +88,10 @@ export function JobDetailPanel({
           {/* Job Description */}
           <ScrollArea className="h-[calc(100vh-180px)]">
           <div>
-            <h4 className="font-semibold text-foreground mb-3">
+            <h4 className="font-semibold text-foreground mb-3 pt-4 pl-2">
               About this role
             </h4>
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed">
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed p-2">
               {job.description || "No description provided."}
             </p>
           </div>
