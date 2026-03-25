@@ -3,7 +3,8 @@ import "./ui/Jobcard.css";
 import {
   Clock,
   MapPin,
-  DollarSign
+  DollarSign,
+  SquareArrowOutUpRight
 } from "lucide-react";
 
 type JobcardProps = {
@@ -38,7 +39,6 @@ const Jobcard = ({
     location,
     publisher,
     jobType,
-    jobSite,
     applicationTypes,
     pay,
     payText,
@@ -68,14 +68,13 @@ const Jobcard = ({
     };
 
     return (
-        <>
-        <div className="jobcard space-y-4" onClick={() => onSelect?.(id)}>
+        <div className="jobcard space-y-4 w-full" onClick={() => onSelect?.(id)}>
             <div className="jobcard-header">
                 <div>
-                    <h3 className="jobcard-title">{jobTitle}</h3>
+                    <h3 className="jobcard-title hover:cursor-pointer">{jobTitle}</h3>
                     <p className="jobcard-company">{companyName}</p>
                     </div>
-                    <button
+                    <button 
                         type="button"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -84,7 +83,8 @@ const Jobcard = ({
                         }}
                         className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}
                     >
-                        {applied ? "Applied" : "Open"}
+                        {applied ? "Applied" : ""}
+                        <SquareArrowOutUpRight className="h-4 w-4"/>
                     </button>
                 </div>
              <div className="jobcard-badges">
@@ -110,7 +110,6 @@ const Jobcard = ({
               <button className="jobcard-action jobcard-action--ghost" type="button" onClick={onSave}>
                 {isSaved ? "Unsave" : "Save"}
               </button>
-                </div>
             </div>
 
             {showApplyPopup && (
@@ -137,7 +136,7 @@ const Jobcard = ({
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 
