@@ -1,7 +1,7 @@
 import { State, City, type ICity, type IState } from "country-state-city";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import supabase from "@/lib/supabase";
 
 const Location = () => {
   const states: IState[] = State.getStatesOfCountry("US");
@@ -12,21 +12,64 @@ const Location = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!selectedState || !selectedCity) {
       setError("Please select both state and city.");
-      return;
-    }
-    else {
-        navigate("/user");
-        setError(null);
+    } else {
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) {
+        setError(sessionError.message);
+      } else {
+        const user = sessionData?.session?.user;
+      console.log("LOCATION PAGE ACTIVE EMAIL:", user?.email);
+      console.log("LOCATION PAGE ACTIVE USER ID:", user?.id);
+        if (!user) {
+          setError("No logged-in user found.");
+        } else {
+    const stateName =
+    states.find((state) => state.isoCode === selectedState)?.name || "";
+
+   const fullLocation = `${selectedCity}, ${stateName}`;
+
+   console.log("SAVE USER ID:", user.id);
+   console.log("SAVE EMAIL:", user.email);
+   console.log("FULL LOCATION:", fullLocation);
+
+const { data: savedRow, error: saveError } = await supabase
+  .from("profiles")
+  .upsert(
+    {
+      user_id: user.id,
+      email: user.email,
+      location: fullLocation,
+    },
+    { onConflict: "user_id" }
+  )
+  .select()
+  .single();
+
+console.log("SAVED ROW:", savedRow);
+console.log("SAVE ERROR:", saveError);
+
+if (saveError) {
+  setError(saveError.message);
+} else {
+  setError(null);
+  navigate("/user");
+}
+        }
+      }
     }
   };
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateCode = e.target.value;
     setSelectedState(stateCode);
+    setSelectedCity("");
 
     if (stateCode) {
       const stateCities: ICity[] = City.getCitiesOfState("US", stateCode);
@@ -40,7 +83,6 @@ const Location = () => {
     const cityName = e.target.value;
     setSelectedCity(cityName);
   };
-
   return (
     <>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">

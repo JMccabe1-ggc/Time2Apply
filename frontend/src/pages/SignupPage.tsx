@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import SignUpForm from "../components/forms/SignupForm.tsx";
+import supabase from "@/lib/supabase";
 
 type SignupPayload = {
   firstName: string;
@@ -31,9 +32,18 @@ const SignupPage = () => {
       if (!response.ok) {
         throw new Error(data?.detail || "Signup failed.");
       }
+       await supabase.auth.signOut({ scope: "global" });
+       const { error: loginError } = await supabase.auth.signInWithPassword({
+       email: payload.email,
+       password: payload.password,
+       });
 
-      setResponseMessage(data?.message || "Account created ✅");
-      navigate("/location");
+        if (loginError) {
+          throw new Error(loginError.message);
+        }
+
+    setResponseMessage(data?.message || "Account created ✅");
+    navigate("/location");
     } catch (error) {
       setResponseMessage(
         error instanceof Error

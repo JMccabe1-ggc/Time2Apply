@@ -13,8 +13,11 @@ export const useJobs = () => {
     const [locationTerm, setLocationTerm] = useState("");
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const fetchJobs = async (title: string, location: string) => {
-        if (!title.trim() || !location.trim()) {
+        const fetchJobs = async (title: string, location: string) => {
+        const safeTitle = title.trim() || "jobs";
+        const safeLocation = location.trim();
+
+        if (!safeLocation) {
             setJobs([]);
             return;
         }
@@ -26,8 +29,8 @@ export const useJobs = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    title: title.trim(),
-                    location: location.trim(),
+                    title: safeTitle,
+                    location: safeLocation,
                 }),
             });
 

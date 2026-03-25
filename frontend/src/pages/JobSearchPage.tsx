@@ -75,9 +75,51 @@ const JobSearchPage = () => {
     );
   }
 };
-useEffect(() => {
-  fetchSavedJobs();
-}, []);
+    useEffect(() => {
+      const loadPageData = async () => {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const user = sessionData?.session?.user;
+
+        if (!user) return;
+
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("user_id, email, location")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        console.log("LOAD USER ID:", user.id);
+        console.log("PROFILE DATA:", profileData);
+        console.log("PROFILE ERROR:", profileError);
+
+        if (profileError) {
+          console.error("Error loading location:", profileError.message);
+        } else if (profileData?.location) {
+          setLocationTerm(profileData.location);
+        }
+
+        const { data, error } = await supabase
+          .from("saved_jobs")
+          .select("job_id, status")
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Error fetching saved jobs:", error.message);
+          return;
+        }
+
+        if (data) {
+          setSavedJobIds(data.map((item) => String(item.job_id)));
+          setAppliedJobIds(
+            data
+              .filter((item) => item.status === "applied")
+              .map((item) => String(item.job_id)),
+          );
+        }
+      };
+
+      loadPageData();
+    }, [setLocationTerm]);
 
   const handleSaveJob = async (job: any) => {
     const { data: sessionData } = await supabase.auth.getSession();
