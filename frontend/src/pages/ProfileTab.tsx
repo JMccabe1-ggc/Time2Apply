@@ -115,6 +115,19 @@ const ProfileTab = () => {
           goals: data.career_goals ?? "",
           linkedIn: data.linkedin ?? "",
         });
+        if (data.state) {
+        const matchedState = states.find((state) => state.name === data.state);
+
+        if (matchedState) {
+      setSelectedState(matchedState.isoCode);
+      const stateCities: ICity[] = City.getCitiesOfState("US", matchedState.isoCode);
+      setCities(stateCities);
+        }
+        }
+
+         if (data.city) {
+       setSelectedCity(data.city);
+        }
           if (data.profile_picture) {
         setProfilePictureUrl(data.profile_picture);
         }
@@ -182,10 +195,12 @@ const ProfileTab = () => {
       return;
     }
     let uploadedProfilePictureUrl = profilePictureUrl;
-
+     const stateName =
+        states.find((state) => state.isoCode === selectedState)?.name || "";
+     const fullLocation = `${selectedCity}, ${stateName}`;
     if (selectedFile) {
     const filePath = `${user.id}/${Date.now()}-${selectedFile.name}`;
-
+    
     const { error: uploadError } = await supabase.storage
       .from("profile-pictures")
       .upload(filePath, selectedFile, { upsert: true });
@@ -211,7 +226,9 @@ const ProfileTab = () => {
       current_title: formState.role,
         email: userInfo.email,
         bio: formState.bio,
-        location: formState.location,
+        city: selectedCity,
+        state: stateName,
+        location: fullLocation,
         career_goals: formState.goals,
         linkedin: formState.linkedIn,
         profile_picture: uploadedProfilePictureUrl,

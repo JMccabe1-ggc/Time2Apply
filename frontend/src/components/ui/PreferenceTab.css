@@ -1,0 +1,196 @@
+.preference-tab {
+  width: auto;
+  margin: 1.5rem auto;
+  border: 1px solid #d6dbe4;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
+  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.45);
+  overflow: hidden;
+}
+
+.preference-tab__header {
+  padding: 1.4rem 1.5rem;
+  color: #f8fafc;
+  background: linear-gradient(130deg, #0f172a 0%, #1e293b 100%);
+}
+
+.preference-tab__title {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.preference-tab__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.93rem;
+  color: #cbd5e1;
+}
+
+.preference-tab__content {
+  padding: 1.2rem 1.5rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preference-tab__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.preference-tab__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.preference-tab__note {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.preference-tab__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.preference-tab__status {
+  margin: 0;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  background: #f0fdfa;
+  color: #0f766e;
+  font-size: 0.84rem;
+  padding: 0.62rem 0.72rem;
+}
+
+/* react-select wrapper */
+.preference-select {
+  font-size: 0.92rem;
+}
+
+.preference-select__control {
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.preference-select__control:hover {
+  border-color: #94a3b8 !important;
+}
+
+.preference-select__control--is-focused {
+  border-color: #0891b2 !important;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12) !important;
+}
+
+.preference-select__value-container {
+  padding: 4px 10px !important;
+}
+
+.preference-select__placeholder {
+  color: #94a3b8 !important;
+}
+
+.preference-select__input-container {
+  color: #1e293b !important;
+}
+
+.preference-select__single-value {
+  color: #1e293b !important;
+}
+
+.preference-select__menu {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 16px 32px -20px rgba(15, 23, 42, 0.35);
+  z-index: 20;
+}
+
+.preference-select__menu-list {
+  padding: 0;
+}
+
+.preference-select__option {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.preference-select__option--is-focused {
+  background: #f8fafc !important;
+}
+
+.preference-select__option--is-selected {
+  background: #0891b2 !important;
+  color: #ffffff !important;
+}
+
+.preference-select__multi-value {
+  border-radius: 999px !important;
+  background: #e0f2fe !important;
+}
+
+.preference-select__multi-value__label {
+  color: #0f172a !important;
+  font-size: 0.82rem !important;
+  padding: 4px 6px 4px 10px !important;
+}
+
+.preference-select__multi-value__remove {
+  color: #0369a1 !important;
+  border-radius: 999px !important;
+}
+
+.preference-select__multi-value__remove:hover {
+  background: #bae6fd !important;
+  color: #0c4a6e !important;
+}
+
+.preference-select__indicator-separator {
+  display: none;
+}
+
+.preference-select__dropdown-indicator {
+  color: #64748b !important;
+}
+
+.preference-select__dropdown-indicator:hover {
+  color: #0f172a !important;
+}
+
+.preference-select__clear-indicator {
+  color: #64748b !important;
+}
+
+.preference-select__clear-indicator:hover {
+  color: #dc2626 !important;
+}
+
+@media (max-width: 720px) {
+  .preference-tab__header {
+    padding: 1.15rem 1rem;
+  }
+
+  .preference-tab__content {
+    padding: 1rem;
+  }
+
+  .preference-tab__actions {
+    flex-direction: column;
+  }
+
+  .preference-tab__actions .profile-tab__button {
+    width: 100%;
+  }
+}
