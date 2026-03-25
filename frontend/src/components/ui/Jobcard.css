@@ -1,10 +1,13 @@
 .jobcard {
-    background: linear-gradient(145deg, rgba(17, 28, 46, 0.95), rgba(10, 16, 30, 0.95));
+    /*background: linear-gradient(145deg, rgba(17, 28, 46, 0.95), rgba(10, 16, 30, 0.95));*/
+    background: white;
     border: 1px solid #1f2a3d;
     border-radius: 18px;
     padding: 18px 20px;
+    margin: 10px;
     display: flex;
     flex-direction: column;
+    /* display: block; */
     gap: 16px;
     box-shadow: 0 12px 30px rgba(8, 12, 24, 0.35);
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -14,6 +17,7 @@
     transform: translateY(-2px);
     border-color: rgba(59, 130, 246, 0.7);
     box-shadow: 0 18px 40px rgba(8, 12, 24, 0.45);
+    cursor: pointer;
 }
 
 .jobcard-header {
@@ -27,27 +31,35 @@
     margin: 0 0 6px;
     font-size: 18px;
     font-weight: 600;
-    color: #f8fafc;
+    color: #000000;
+}
+
+.jobcard-title:hover {
+    color:#1d4ed8
 }
 
 .jobcard-company {
     margin: 0;
     font-size: 14px;
-    color: #cbd5e1;
+    color: #000000;
 }
 
 .jobcard-chip {
     align-self: flex-start;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.45);
-    color: #93c5fd;
-    padding: 4px 10px;
-    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.2);
+    /* border: 1px solid rgba(59, 130, 246, 0.45); */
+    color: black;
+    padding: 8px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     cursor: pointer;
+}
+
+.jobcard-chip:hover {
+    background-color: rgba(100, 116, 139, 0.4);
 }
 
 .jobcard-chip--applied {
@@ -63,9 +75,9 @@
 }
 
 .jobcard-badge {
-    background: rgba(148, 163, 184, 0.15);
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    color: #e2e8f0;
+    background: rgba(100, 116, 139, 0.2);
+    border: 1px solid rgba(100, 116, 139, 0.4);
+    color: #000000;
     padding: 4px 10px;
     border-radius: 999px;
     font-size: 12px;
@@ -73,7 +85,7 @@
 }
 
 .jobcard-badge--muted {
-    color: #cbd5e1;
+    color: #000000;
     background: rgba(100, 116, 139, 0.2);
     border-color: rgba(100, 116, 139, 0.4);
 }
@@ -83,7 +95,7 @@
     flex-wrap: wrap;
     gap: 12px 20px;
     font-size: 14px;
-    color: #94a3b8;
+    color: black;
 }
 
 .jobcard-footer {
@@ -95,13 +107,13 @@
 
 .jobcard-location {
     font-size: 14px;
-    color: #94a3b8;
+    color: black;
 }
 
 .jobcard-pay,
 .jobcard-date {
     font-size: 14px;
-    color: #cbd5e1;
+    color: black;
 }
 
 .jobcard-action {
@@ -112,7 +124,6 @@
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 600;
-    cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -125,11 +136,12 @@
 .jobcard-action--ghost {
     background: transparent;
     border: 1px solid #334155;
-    color: #e2e8f0;
+    color: black;
 }
 
 .jobcard-action--ghost:hover {
-    background: rgba(148, 163, 184, 0.12);
+    background: oklch(59.6% 0.145 163.225);
+    color: white;
     box-shadow: none;
 }
 
