@@ -109,6 +109,45 @@ async def upload_resume(file: UploadFile = File(...)):
     }
     
 
+@app.get("/resume/active/skills")
+async def get_active_resume_skills():
+    resume_res = (
+        supabase.table("resumes")
+        .select("id")
+        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("is_active", True)
+        .single()
+        .execute()
+    )
+
+    if not resume_res.data:
+        return {"skills": []}
+
+    resume_id = resume_res.data["id"]
+
+    resume_skills_res = (
+        supabase.table("resume_skills")
+        .select("skill_id")
+        .eq("resume_id", resume_id)
+        .execute()
+    )
+
+    skill_ids = [row["skill_id"] for row in resume_skills_res.data]
+
+    if not skill_ids:
+        return {"skills": []}
+
+    skills_res = (
+        supabase.table("skills")
+        .select("skill_name")
+        .in_("id", skill_ids)
+        .execute()
+    )
+
+    skills = [row["skill_name"] for row in skills_res.data]
+
+    return {"skills": skills}  
+
 @app.post("/jobs/search")
 def search_job(data: JobSearchQuery):
 
