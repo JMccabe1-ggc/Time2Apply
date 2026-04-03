@@ -298,6 +298,8 @@ const handleMarkApplied = async (job: any) => {
                     }}
                   />
                   <label htmlFor="salaryRange">{`$${minSalary.toLocaleString()} - $${maxSalary.toLocaleString()}`}</label>
+                  <br />
+                  <label htmlFor="salary2Hourly"></label>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="jobType">
@@ -386,6 +388,17 @@ const handleMarkApplied = async (job: any) => {
                   <br />
                   <input
                     type="checkbox"
+                    name="zipRecruiter"
+                    id="zipRecruiter"
+                    checked={jobSite.zipRecruiter}
+                    onChange={(e) =>
+                      setJobSite({ ...jobSite, zipRecruiter: e.target.checked })
+                    }
+                  />
+                  ZipRecruiter
+                  <br />
+                  <input
+                    type="checkbox"
                     name="monster"
                     id="monster"
                     checked={jobSite.monster}
@@ -394,6 +407,17 @@ const handleMarkApplied = async (job: any) => {
                     }
                   />
                   Monster
+                  <br />
+                  <input
+                    type="checkbox"
+                    name="other"
+                    id="other"
+                    checked={jobSite.other}
+                    onChange={(e) =>
+                      setJobSite({ ...jobSite, other: e.target.checked })
+                    }
+                  />
+                  Other
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="applicationType">

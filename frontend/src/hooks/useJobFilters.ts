@@ -14,6 +14,8 @@ export const useJobFilters = () => {
         indeed: true,
         handshake: true,
         monster: true,
+        zipRecruiter: true,
+        other: true,
     });
 
     const [applicationType, setApplicationType] = useState({
@@ -34,13 +36,18 @@ export const useJobFilters = () => {
         return jobs.filter((job) => {
             if (job.jobType === "Full-time" && !jobType.fullTime) return false;
             if (job.jobType === "Part-time" && !jobType.partTime) return false;
-            if (job.jobType === "Contract" && !jobType.contract) return false;
+            if (job.jobType === "Contractor" && !jobType.contract) return false;
             if (job.jobType === "Internship" && !jobType.internship) return false;
 
-            if (job.jobSite === "LinkedIn" && !jobSite.linkedIn) return false;
-            if (job.jobSite === "Indeed" && !jobSite.indeed) return false;
-            if (job.jobSite === "Handshake" && !jobSite.handshake) return false;
-            if (job.jobSite === "Monster" && !jobSite.monster) return false;
+            const normalizedJobSite = job.jobSite?.toLowerCase();
+            const knownSites = ["linkedin", "indeed", "handshake", "monster", "ziprecruiter"];
+            const isOther = !knownSites.includes(normalizedJobSite);
+            if (normalizedJobSite === "linkedin" && !jobSite.linkedIn) return false;
+            if (normalizedJobSite === "indeed" && !jobSite.indeed) return false;
+            if (normalizedJobSite === "handshake" && !jobSite.handshake) return false;
+            if (normalizedJobSite === "monster" && !jobSite.monster) return false;
+            if (normalizedJobSite === "ziprecruiter" && !jobSite.zipRecruiter) return false;
+            if (isOther && !jobSite.other) return false;
 
             if (job.applicationType === "Easy Apply" && !applicationType.easyApply) return false;
             if (job.applicationType === "External Apply" && !applicationType.externalApply) return false;

@@ -7,7 +7,8 @@ export const mapApiResponseToJobs = (apiJobs: any[]): Job[] => {
         company: job.company || "",
         location: job.location || "",
         jobType: job.job_type || "",
-        jobSite: "JSearch",
+        // Backend returns publisher for source site; keep job_site as fallback.
+        jobSite: job.publisher || "",
         applicationType: "External Apply",
         pay: job.salary_min && job.salary_max
             ? { min: job.salary_min, max: job.salary_max, currency: "USD" }
