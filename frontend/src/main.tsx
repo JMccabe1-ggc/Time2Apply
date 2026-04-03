@@ -12,6 +12,7 @@ import Profile from './pages/Profile.tsx'
 import SignupPage from './pages/SignupPage.tsx'
 import Newpassword from './pages/Newpassword.tsx'
 import Location from './pages/Location.tsx'
+import ChangePassword from './pages/ChangePassword.tsx'
 //import ProfileTab from 'userLoggedIn/tabs/ProfileTab.tsx'
 //import PreferenceTab from 'userLoggedIn/tabs/PreferenceTab.tsx'
 //import AccountTab from 'userLoggedIn/tabs/AccountTab.tsx'
@@ -30,6 +31,8 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/profile" element={<Profile />} />
       <Route path="/newpassword" element={<Newpassword />} />
       <Route path="/location" element={<Location />} />
+      <Route path="/changepassword" element={<ChangePassword />} />
+
     </Routes>
     </BrowserRouter>
   </StrictMode>,

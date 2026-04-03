@@ -1,0 +1,231 @@
+import supabase from "@/lib/supabase";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+
+const ChangePassword = () => {
+    const navigate = useNavigate();
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [ready, setReady] = useState(false); // session exists
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+   const checkPassword = (password: string) => {
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+};
+const rules = checkPassword(newPassword);
+const hasPasswordInput = newPassword.length > 0;
+const showPasswordRules = isPasswordFocused || hasPasswordInput;
+
+const getRuleTextClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "text-slate-400";
+  }
+
+  return isMet ? "text-emerald-400" : "text-slate-500";
+};
+
+const getRuleBadgeClass = (isMet: boolean) => {
+  if (!hasPasswordInput) {
+    return "border-slate-600 bg-slate-700/60 text-slate-300";
+  }
+
+  return isMet
+    ? "border-emerald-500/70 bg-emerald-500/15 text-emerald-300"
+    : "border-slate-600 bg-slate-700/60 text-slate-300";
+};
+
+useEffect(() => {
+    const init = async () => {
+      setMsg(null);
+      setReady(false);
+
+      // If Supabase returns an error in the hash, show it
+      if (window.location.hash.includes("error=")) {
+        const params = new URLSearchParams(window.location.hash.replace("#", ""));
+        const desc = params.get("error_description")?.replace(/\+/g, " ");
+        setMsg(desc || "Invalid or expired reset link.");
+        return;
+      }
+
+      // Exchange ?code=... for a session (PKCE recovery flow)
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          setMsg(error.message);
+          return;
+        }
+        // clean URL (removes code from address bar)
+        url.searchParams.delete("code");
+        window.history.replaceState({}, "", url.toString());
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        setMsg("Open the reset link from your email again.");
+        return;
+      }
+
+      setReady(true);
+    };
+
+    void init();
+  }, []);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg(null);
+
+    if (!ready) {
+      setMsg("Reset session missing. Open the reset link again.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) return setMsg("Passwords do not match.");
+      if (newPassword.length < 12) return setMsg("Password must be at least 12 characters.");
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\-\\[\]\\\/`~+=;'"]/g.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    if (!hasUpperCase || !hasSpecialChar || !hasNumber) {
+      return setMsg("Password must include an uppercase letter, a special character, and a number.");
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setLoading(false);
+
+    if (error) return setMsg(error.message);
+
+    setMsg("Password updated! Redirecting to account...");
+    setTimeout(() => navigate("/profile"), 1200);
+  };
+
+    return(
+        <>
+        <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-slate-800/60 border border-slate-700 rounded-2xl p-8">
+        <h1 className="text-3xl font-bold mb-2">Change Password</h1>
+        <p className="text-slate-300 mb-6">Choose a strong password for your account.</p>
+        {msg && <p className="mb-4 text-sm text-red-400">{msg}</p>}
+
+        <form action="" className="space-y-40" onSubmit={handleUpdate}>
+
+             <input
+            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-2.5"
+            type="password"
+            placeholder="Current password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+            disabled={!ready || loading}
+          />
+
+            <input
+            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-2.5"
+            type="password"
+            placeholder="New password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+            disabled={!ready || loading}
+          />
+
+          {showPasswordRules && (
+              <ul className="mt-3 grid grid-cols-1 gap-2 rounded-md border border-slate-700/80 bg-slate-900/60 p-3 text-sm sm:grid-cols-2">
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.length)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.length)}`}
+                  >
+                    {rules.length ? "✓" : "•"}
+                  </span>
+                  At least 8 characters
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.uppercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.uppercase)}`}
+                  >
+                    {rules.uppercase ? "✓" : "•"}
+                  </span>
+                  One uppercase letter
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.lowercase)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.lowercase)}`}
+                  >
+                    {rules.lowercase ? "✓" : "•"}
+                  </span>
+                  One lowercase letter
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.number)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.number)}`}
+                  >
+                    {rules.number ? "✓" : "•"}
+                  </span>
+                  One number
+                </li>
+
+                <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 sm:col-span-2 ${getRuleTextClass(rules.special)}`}>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${getRuleBadgeClass(rules.special)}`}
+                  >
+                    {rules.special ? "✓" : "•"}
+                  </span>
+                  One special character
+                </li>
+              </ul>
+            )}
+
+           <input
+            className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-2.5"
+            type="password"
+            placeholder="Confirm password"
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+            disabled={!ready || loading}
+          />
+
+          <button
+            type="submit"
+            disabled={!ready || loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 font-semibold py-2.5 rounded-lg"
+          >
+            {loading ? "Updating..." : "Update Password"}
+          </button>
+
+          <div className="flex items-center justify-between text-sm">
+            <label htmlFor="">
+          Back to <Link className="text-blue-400" to="/profile">Profile</Link>
+            </label>
+          <Link to="/forgotpassword" className="text-blue-400 hover:text-blue-300">
+                                Forgot password?
+                            </Link>
+        </div>
+          
+        </form>
+
+        </div>
+        </div>
+
+        </>
+    );
+};
+
+export default ChangePassword;
