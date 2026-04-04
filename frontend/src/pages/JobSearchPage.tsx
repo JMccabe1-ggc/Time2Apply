@@ -297,9 +297,8 @@ const handleMarkApplied = async (job: any) => {
                       setMaxSalary(values[1]);
                     }}
                   />
-                  <label htmlFor="salaryRange">{`$${minSalary.toLocaleString()} - $${maxSalary.toLocaleString()}`}</label>
-                  <br />
-                  <label htmlFor="salary2Hourly"></label>
+                  <label htmlFor="salaryRange">Salary: {`$${minSalary.toLocaleString()} - $${maxSalary.toLocaleString()}`}</label>
+                  <label htmlFor="salary2Hourly">Hourly: {`$${(minSalary / 2080).toFixed(2)}`}-${(maxSalary / 2080).toFixed(2)}</label>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="jobType">

@@ -114,13 +114,13 @@ useEffect(() => {
 
     return(
         <>
-        <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center px-4">
+        <div className="min-h-screen bg-slate-900 text-white flex items-start justify-center px-4 py-10 sm:py-14">
         <div className="w-full max-w-md bg-slate-800/60 border border-slate-700 rounded-2xl p-8">
         <h1 className="text-3xl font-bold mb-2">Change Password</h1>
         <p className="text-slate-300 mb-6">Choose a strong password for your account.</p>
         {msg && <p className="mb-4 text-sm text-red-400">{msg}</p>}
 
-        <form action="" className="space-y-40" onSubmit={handleUpdate}>
+        <form action="" className="space-y-6" onSubmit={handleUpdate}>
 
              <input
             className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-2.5"
