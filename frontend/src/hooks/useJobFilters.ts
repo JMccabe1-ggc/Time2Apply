@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { Job } from "../types/job.ts";
 
 export const useJobFilters = () => {
+    const [hasPayListed, setHasPayListed] = useState(false);
+
     const [jobType, setJobType] = useState({
         fullTime: true,
         partTime: true,
@@ -55,6 +57,8 @@ export const useJobFilters = () => {
 
             if (job.pay && (job.pay.max < minSalary || job.pay.min > maxSalary)) return false;
 
+            if (hasPayListed && job.pay == null) return false;
+
             if (term) {
                 const titleMatch = job.title?.toLowerCase().includes(term);
                 const companyMatch = job.company?.toLowerCase().includes(term);
@@ -86,6 +90,8 @@ export const useJobFilters = () => {
         setMinSalary,
         maxSalary,
         setMaxSalary,
+        hasPayListed,
+        setHasPayListed,
         filterTerm,
         setFilterTerm,
         filterLocation,

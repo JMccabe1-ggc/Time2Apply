@@ -24,7 +24,7 @@ export const useJobs = () => {
 
         setLoading(true);
         setError(null);
-        try {
+        try {//ERROR HERE ONLY IN CONSOLE
             const response = await fetch(`${API_BASE_URL}/jobs/search`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -40,10 +40,10 @@ export const useJobs = () => {
 
             const data = await response.json();
             setJobs(mapApiResponseToJobs(data.jobs));
-        } catch (err) {
+        } catch (err) {//ERROR HERE NEW CITY ALWAYS CATCHES ISSUES
             const message = err instanceof Error ? err.message : "Unknown error";
-            setError(message);
-            console.error("Error fetching jobs:", err);
+            setError("zzzzError fetching jobs: " + message);
+            console.error("Error fetching jobs:aaaaa", err);
         } finally {
             setLoading(false);
         }
