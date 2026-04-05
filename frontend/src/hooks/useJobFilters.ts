@@ -1,6 +1,27 @@
 import { useState } from "react";
 import type { Job } from "../types/job.ts";
 
+const toAnnualPayRange = (pay: Job["pay"]): { min: number; max: number } | null => {
+    if (!pay) return null;
+
+    let multiplier: number | null = null;
+
+    if (pay.period === "hour") multiplier = 2080;
+    if (pay.period === "week") multiplier = 52;
+    if (pay.period === "month") multiplier = 12;
+    if (pay.period === "year") multiplier = 1;
+
+    if (multiplier == null) return null;
+
+    const annualMin = pay.min * multiplier;
+    const annualMax = pay.max * multiplier;
+
+    return {
+        min: Math.min(annualMin, annualMax),
+        max: Math.max(annualMin, annualMax),
+    };
+};
+
 export const useJobFilters = () => {
     const [hasPayListed, setHasPayListed] = useState(false);
 
@@ -55,7 +76,8 @@ export const useJobFilters = () => {
             if (job.applicationType === "External Apply" && !applicationType.externalApply) return false;
             if (job.applicationType === "Questionnaire" && !applicationType.questionnaire) return false;
 
-            if (job.pay && (job.pay.max < minSalary || job.pay.min > maxSalary)) return false;
+            const annualPay = toAnnualPayRange(job.pay);
+            if (annualPay && (annualPay.max < minSalary || annualPay.min > maxSalary)) return false;
 
             if (hasPayListed && job.pay == null) return false;
 

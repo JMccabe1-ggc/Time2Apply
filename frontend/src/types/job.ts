@@ -1,7 +1,10 @@
+export type PayPeriod = "hour" | "week" | "month" | "year" | "unknown";
+
 export interface Pay {
     min: number;
     max: number;
     currency: string;
+    period: PayPeriod;
 }
 
 export interface Job {
