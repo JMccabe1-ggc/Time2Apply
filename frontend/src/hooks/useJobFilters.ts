@@ -1,7 +1,30 @@
 import { useState } from "react";
 import type { Job } from "../types/job.ts";
 
+const toAnnualPayRange = (pay: Job["pay"]): { min: number; max: number } | null => {
+    if (!pay) return null;
+
+    let multiplier: number | null = null;
+
+    if (pay.period === "hour") multiplier = 2080;
+    if (pay.period === "week") multiplier = 52;
+    if (pay.period === "month") multiplier = 12;
+    if (pay.period === "year") multiplier = 1;
+
+    if (multiplier == null) return null;
+
+    const annualMin = pay.min * multiplier;
+    const annualMax = pay.max * multiplier;
+
+    return {
+        min: Math.min(annualMin, annualMax),
+        max: Math.max(annualMin, annualMax),
+    };
+};
+
 export const useJobFilters = () => {
+    const [hasPayListed, setHasPayListed] = useState(false);
+
     const [jobType, setJobType] = useState({
         fullTime: true,
         partTime: true,
@@ -14,6 +37,8 @@ export const useJobFilters = () => {
         indeed: true,
         handshake: true,
         monster: true,
+        zipRecruiter: true,
+        other: true,
     });
 
     const [applicationType, setApplicationType] = useState({
@@ -34,19 +59,27 @@ export const useJobFilters = () => {
         return jobs.filter((job) => {
             if (job.jobType === "Full-time" && !jobType.fullTime) return false;
             if (job.jobType === "Part-time" && !jobType.partTime) return false;
-            if (job.jobType === "Contract" && !jobType.contract) return false;
+            if (job.jobType === "Contractor" && !jobType.contract) return false;
             if (job.jobType === "Internship" && !jobType.internship) return false;
 
-            if (job.jobSite === "LinkedIn" && !jobSite.linkedIn) return false;
-            if (job.jobSite === "Indeed" && !jobSite.indeed) return false;
-            if (job.jobSite === "Handshake" && !jobSite.handshake) return false;
-            if (job.jobSite === "Monster" && !jobSite.monster) return false;
+            const normalizedJobSite = job.jobSite?.toLowerCase();
+            const knownSites = ["linkedin", "indeed", "handshake", "monster", "ziprecruiter"];
+            const isOther = !knownSites.includes(normalizedJobSite);
+            if (normalizedJobSite === "linkedin" && !jobSite.linkedIn) return false;
+            if (normalizedJobSite === "indeed" && !jobSite.indeed) return false;
+            if (normalizedJobSite === "handshake" && !jobSite.handshake) return false;
+            if (normalizedJobSite === "monster" && !jobSite.monster) return false;
+            if (normalizedJobSite === "ziprecruiter" && !jobSite.zipRecruiter) return false;
+            if (isOther && !jobSite.other) return false;
 
             if (job.applicationType === "Easy Apply" && !applicationType.easyApply) return false;
             if (job.applicationType === "External Apply" && !applicationType.externalApply) return false;
             if (job.applicationType === "Questionnaire" && !applicationType.questionnaire) return false;
 
-            if (job.pay && (job.pay.max < minSalary || job.pay.min > maxSalary)) return false;
+            const annualPay = toAnnualPayRange(job.pay);
+            if (annualPay && (annualPay.max < minSalary || annualPay.min > maxSalary)) return false;
+
+            if (hasPayListed && job.pay == null) return false;
 
             if (term) {
                 const titleMatch = job.title?.toLowerCase().includes(term);
@@ -79,6 +112,8 @@ export const useJobFilters = () => {
         setMinSalary,
         maxSalary,
         setMaxSalary,
+        hasPayListed,
+        setHasPayListed,
         filterTerm,
         setFilterTerm,
         filterLocation,

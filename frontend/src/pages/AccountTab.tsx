@@ -107,7 +107,7 @@ const AccountTab = () => {
                         <button
                             type="button"
                             className="account-tab__button account-tab__button--primary"
-                            onClick={() => navigate("/newpassword")}
+                            onClick={() => navigate("/changepassword")}
                         >
                             Change Password
                         </button>

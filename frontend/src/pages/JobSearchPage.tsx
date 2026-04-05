@@ -42,6 +42,8 @@ const JobSearchPage = () => {
     setMinSalary,
     maxSalary,
     setMaxSalary,
+    hasPayListed,
+    setHasPayListed,
     applyFilters,
   } = useJobFilters();
 
@@ -297,7 +299,17 @@ const handleMarkApplied = async (job: any) => {
                       setMaxSalary(values[1]);
                     }}
                   />
-                  <label htmlFor="salaryRange">{`$${minSalary.toLocaleString()} - $${maxSalary.toLocaleString()}`}</label>
+                  <label htmlFor="salaryRange">Salary: {`$${minSalary.toLocaleString()} - $${maxSalary.toLocaleString()}`}</label>
+                  <label htmlFor="salary2Hourly">Hourly: {`$${(minSalary / 2080).toFixed(2)}`}-${(maxSalary / 2080).toFixed(2)}</label>
+                  <label htmlFor="listedPayOnly">
+                    <input
+                      type="checkbox"
+                      id="listedPayOnly"
+                      checked={hasPayListed}
+                      onChange={(e) => setHasPayListed(e.target.checked)}
+                    />
+                    Show jobs with listed pay only
+                  </label>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="jobType">
@@ -386,6 +398,17 @@ const handleMarkApplied = async (job: any) => {
                   <br />
                   <input
                     type="checkbox"
+                    name="zipRecruiter"
+                    id="zipRecruiter"
+                    checked={jobSite.zipRecruiter}
+                    onChange={(e) =>
+                      setJobSite({ ...jobSite, zipRecruiter: e.target.checked })
+                    }
+                  />
+                  ZipRecruiter
+                  <br />
+                  <input
+                    type="checkbox"
                     name="monster"
                     id="monster"
                     checked={jobSite.monster}
@@ -394,6 +417,17 @@ const handleMarkApplied = async (job: any) => {
                     }
                   />
                   Monster
+                  <br />
+                  <input
+                    type="checkbox"
+                    name="other"
+                    id="other"
+                    checked={jobSite.other}
+                    onChange={(e) =>
+                      setJobSite({ ...jobSite, other: e.target.checked })
+                    }
+                  />
+                  Other
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="applicationType">
@@ -442,6 +476,42 @@ const handleMarkApplied = async (job: any) => {
                   Questionnaire
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="sortBy">
+                <AccordionTrigger>Sort By</AccordionTrigger>
+                <AccordionContent>
+                  <div className="sort-controls">
+                    
+
+                    <div className="sort-row">
+                      <label htmlFor="salaryDropdown" className="sort-row__label">Salary</label>
+                      <select id="salaryDropdown" name="salarySort" className="sort-row__select">
+                        <option value="default">Default</option>
+                        <option value="salary-desc">Highest to Lowest</option>
+                        <option value="salary-asc">Lowest to Highest</option>
+                      </select>
+                    </div>
+
+                    <div className="sort-row">
+                      <label htmlFor="postedDateDropdown" className="sort-row__label">Posted Date</label>
+                      <select id="postedDateDropdown" name="postedDateSort" className="sort-row__select">
+                        <option value="default">Default</option>
+                        <option value="date-desc">Newest to Oldest</option>
+                        <option value="date-asc">Oldest to Newest</option>
+                      </select>
+                    </div>
+
+                    <div className="sort-row">
+                      <label htmlFor="matchScoreDropdown" className="sort-row__label">Match Score</label>
+                      <select id="matchScoreDropdown" name="matchScoreSort" className="sort-row__select">
+                        <option value="default">Default</option>
+                        <option value="score-desc">Highest to Lowest</option>
+                        <option value="score-asc">Lowest to Highest</option>
+                      </select>
+                    </div>
+                  </div>
+
+                </AccordionContent>
+                </AccordionItem>
             </Accordion>
           </div>
         </aside>
