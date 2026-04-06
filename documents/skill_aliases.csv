@@ -19,6 +19,25 @@ js,javascript
 nodejs,nodejs
 node.js,nodejs
 node js,nodejs
+node,nodejs
+mern,mern
+mern stack,mern
+jest,jest
+jest testing,jest
+php,php
+hypertext preprocessor,php
+tailwind,tailwind
+tailwind css,tailwind
+bootstrap,bootstrap
+waterfall,waterfall
+agile,agile
+javafx,javafx
+oop,oop
+object oriented programming,oop
+quality assurance,qa
+qa,qa
+rust,rust
+godo,godo
 ecmascript,javascript
 typescript,typescript
 ts,typescript
@@ -136,7 +155,7 @@ google cloud platform,google cloud
 azure,azure
 azure cloud,azure
 microsoft azure,azure
-do,digitalocean
+digitalocean,digitalocean
 docker,docker
 docker container,docker
 kubernetes,kubernetes

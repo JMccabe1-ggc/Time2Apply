@@ -21,11 +21,18 @@ html,programming_language
 css,programming_language
 jquery,programming_language
 sql,programming_language
+nodejs,framework
+qa,framework
 artificial intelligence,framework
+mern,framework
+jest,framework
+tailwind,framework
 selenium,framework
 mockito,framework
 junit,framework
+javafx,framework
 pymupdf,library
+bootstrap,library
 json,library
 spacy,library
 react,framework
@@ -115,16 +122,19 @@ visual studio code,tool
 intellij,tool
 eclipse,tool
 unity,tool
+godo,tool
 agile,methodology
 scrum,methodology
 kanban,methodology
 test driven development,methodology
 continuous integration,methodology
 continuous deployment,methodology
+waterfall,methodology
 microservices,architecture
 rest api,architecture
 graphql,architecture
 event driven architecture,architecture
+oop,architecture
 machine learning,data_science
 deep learning,data_science
 natural language processing,data_science
