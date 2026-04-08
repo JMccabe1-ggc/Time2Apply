@@ -217,9 +217,17 @@ def search_job(data: JobSearchQuery):
                 .execute()
             )
 
+            jobs_list = [item["jobs"] for item in jobs.data]
+
+            enriched_jobs = attach_match_data(
+                jobs_list,
+                active_resume,
+                resume_skills
+            )
+
             return {
                 "source": "cache",
-                "jobs": [item["jobs"] for item in jobs.data]
+                "jobs": enriched_jobs
             }
     
     # The search query is empty and already expired, CALL the API
@@ -261,7 +269,7 @@ def search_job(data: JobSearchQuery):
         job_skills = extract_skills_from_text(job["description"] or "")
         job_embedding = generate_embedding(job["description"] or "")
 
-        print(type(job_embedding), job_embedding[:5])
+        # print(type(job_embedding), job_embedding[:5])
 
         # Upsert job
         job_insert = (
@@ -299,6 +307,7 @@ def search_job(data: JobSearchQuery):
         #     item["skills"]["skill_name"] for item in job_skills_res.data
         # }
 
+        # 
         job_skills = set(job_skills)
 
         for skill in job_skills:
@@ -334,6 +343,7 @@ def search_job(data: JobSearchQuery):
             #     }).execute()
 
         # JOB MATCHING
+        
         resume_embedding = parse_embedding(active_resume.get("embedding") if active_resume else None)
 
         if resume_embedding and job_embedding:
@@ -404,6 +414,58 @@ def call_jsearch_api(query: str, location: str, radius: int = 25):
         })
 
     return jobs
+
+# data pipeline to attch match % to job data
+def attach_match_data(jobs, active_resume, resume_skills):
+    enriched_jobs = []
+
+    resume_embedding = parse_embedding(active_resume.get("embedding") if active_resume else None)
+
+    for job in jobs:
+
+        job_embedding = parse_embedding(job.get("embedding"))
+
+        # fallback: if missing embedding, skip
+        if not job_embedding:
+            job["match"] = {
+                "match_percentage": 0,
+                "matched_skills": [],
+                "missing_skills": []
+            }
+            enriched_jobs.append(job)
+            continue
+
+        # get job skills from DB
+        job_skills_res = (
+            supabase.table("job_skills")
+            .select("skills(skill_name)")
+            .eq("job_id", job["id"])
+            .execute()
+        )
+
+        job_skills = {
+            item["skills"]["skill_name"]
+            for item in job_skills_res.data
+        }
+
+        if resume_embedding:
+            match_result = compute_match(
+                resume_embedding,
+                job_embedding,
+                resume_skills,
+                job_skills
+            )
+        else:
+            match_result = {
+                "match_percentage": 0,
+                "matched_skills": [],
+                "missing_skills": []
+            }
+
+        job["match"] = match_result
+        enriched_jobs.append(job)
+
+    return enriched_jobs
 
 def parse_embedding(embedding):
     if embedding is None:
