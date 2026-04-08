@@ -7,6 +7,10 @@ from datetime import datetime, timedelta
 import requests
 import os
 import fitz
+import json
+from services.embedding.encoder import generate_embedding
+
+from services.matching.engine import compute_match
 
 from services.skill_extraction.extractor import extract_skills_from_text
 
@@ -62,6 +66,9 @@ async def upload_resume(file: UploadFile = File(...)):
     # Clean text
     cleaned_text = re.sub(r'\s+', ' ', raw_text).strip()
 
+    # Get the embedding from the clean text
+    embedding = generate_embedding(cleaned_text)
+
     # Deactivate old resumes
     supabase.table("resumes") \
         .update({"is_active": False}) \
@@ -77,12 +84,16 @@ async def upload_resume(file: UploadFile = File(...)):
         "file_path": "file_path",
         "raw_text": raw_text,
         "cleaned_text": cleaned_text,
+        "embedding": embedding,
         "is_active": True
     }).execute()
 
     resume_id =  insert_res.data[0]["id"]
 
     skills = extract_skills_from_text(cleaned_text)
+
+    # print(type(embedding), embedding[:5])
+
 
     for skill in skills:
 
@@ -150,6 +161,33 @@ async def get_active_resume_skills():
 
 @app.post("/jobs/search")
 def search_job(data: JobSearchQuery):
+
+# Get the active resume for the job match %
+    resume_res = (
+        supabase.table("resumes")
+        .select("*")
+        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("is_active", True)
+        .limit(1)
+        .execute()
+    )
+
+    active_resume = resume_res.data[0] if resume_res.data else None
+
+    resume_skills = set()
+
+    if active_resume:
+        skills_res = (
+            supabase.table("resume_skills")
+            .select("skills(skill_name)")
+            .eq("resume_id", active_resume["id"])
+            .execute()
+        )
+
+        resume_skills = {
+            item["skills"]["skill_name"]
+            for item in skills_res.data
+        }
 
     normalize_query = data.title.strip().lower()
     normalize_location = data.location.strip().lower() if data.location else None
@@ -220,6 +258,11 @@ def search_job(data: JobSearchQuery):
     # Insert jobs + mapping
     for job in api_jobs:
 
+        job_skills = extract_skills_from_text(job["description"] or "")
+        job_embedding = generate_embedding(job["description"] or "")
+
+        print(type(job_embedding), job_embedding[:5])
+
         # Upsert job
         job_insert = (
             supabase.table("jobs")
@@ -237,12 +280,77 @@ def search_job(data: JobSearchQuery):
                 "apply_url": job.get("apply_url"),
                 "source": "jsearch",
                 "raw_data": job,
+                "embedding": job_embedding,
                 "fetched_at": now.isoformat()
             }, on_conflict="external_job_id,source")
             .execute()
         )
 
         job_id = job_insert.data[0]["id"]
+
+        # job_skills_res = (
+        #     supabase.table("job_skills")
+        #     .select("skills(skill_name)")
+        #     .eq("job_id", job_id)
+        #     .execute()
+        # )
+
+        # job_skills = {
+        #     item["skills"]["skill_name"] for item in job_skills_res.data
+        # }
+
+        job_skills = set(job_skills)
+
+        for skill in job_skills:
+            skill_row = (
+                supabase.table("skills")
+                .select("id")
+                .eq("skill_name", skill)
+                .single()
+                .execute()
+            )
+
+            if not skill_row.data:
+                continue
+
+            skill_id = skill_row.data["id"]
+
+            existing = supabase.table("job_skills") \
+                .select("id") \
+                .eq("job_id", job_id) \
+                .eq("skill_id", skill_id) \
+                .execute()
+
+            if not existing.data:
+                supabase.table("job_skills").insert({
+                    "job_id": job_id,
+                    "skill_id": skill_id
+                }).execute()
+
+            # if not existing_skill.data:
+            #     supabase.table("job_skills").insert({
+            #         "job_id": job_id,
+            #         "skill_id": skill_id
+            #     }).execute()
+
+        # JOB MATCHING
+        resume_embedding = parse_embedding(active_resume.get("embedding") if active_resume else None)
+
+        if resume_embedding and job_embedding:
+            match_result = compute_match(
+                resume_embedding,
+                job_embedding,
+                resume_skills,
+                job_skills
+            )
+        else:
+            match_result = {
+                "match_percentage": 0,
+                "matched_skills": [],
+                "missing_skills": []
+            }
+
+        job["match"] = match_result
 
         # Link search to job
         supabase.table("search_results").insert({
@@ -296,6 +404,37 @@ def call_jsearch_api(query: str, location: str, radius: int = 25):
         })
 
     return jobs
+
+def parse_embedding(embedding):
+    if embedding is None:
+        return None
+
+    # list -> float
+    if isinstance(embedding, list):
+        return [float(x) for x in embedding]
+    
+    if isinstance(embedding, str):
+        return json.loads(embedding)
+
+    raise ValueError("Invalid embedding format")
+
+@app.get("/embed/test")
+def get_embed():
+
+    resume_res = (
+        supabase.table("resumes")
+        .select("*")
+        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("is_active", True)
+        .limit(1)
+        .execute()
+    )
+
+    active_resume = resume_res.data[0] if resume_res.data else None
+    test_resume_embedding = active_resume["embedding"]
+    return {
+        "embedding": test_resume_embedding
+    }
 
 @app.get("/")
 def read_root():
