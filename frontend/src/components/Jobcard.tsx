@@ -1,10 +1,13 @@
-import { useState } from "react";
+
 import "./ui/Jobcard.css";
+import { Badge } from "./ui/badge";
+import { Card, CardContent } from "./ui/card";
 import {
   Clock,
   MapPin,
   DollarSign,
-  SquareArrowOutUpRight
+  ExternalLink,
+  BadgeCheck,
 } from "lucide-react";
 
 type JobcardProps = {
@@ -29,7 +32,7 @@ type JobcardProps = {
     onSelect?: (id: number) => void;
         onSave: () => void;
         isSaved: boolean;
-        onApply?: () => void;
+        // onApply?: () => void;
 };
 
 const Jobcard = ({
@@ -48,9 +51,8 @@ const Jobcard = ({
     onSelect,
     onSave,
     isSaved,
-    onApply,
 }: JobcardProps) => {
-    const [showApplyPopup, setShowApplyPopup] = useState(false);
+
 
     const formattedPay = payText
         ? payText
@@ -68,75 +70,79 @@ const Jobcard = ({
     };
 
     return (
-        <div className="jobcard space-y-4 w-full" onClick={() => onSelect?.(id)}>
-            <div className="jobcard-header">
-                <div>
-                    <h3 className="jobcard-title hover:cursor-pointer">{jobTitle}</h3>
-                    <p className="jobcard-company">{companyName}</p>
-                    </div>
-                    <button 
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            goToPosting();
-                            setShowApplyPopup(true);
-                        }}
-                        className={`jobcard-chip ${applied ? "jobcard-chip--applied" : "jobcard-chip--open"}`}
-                    >
-                        {applied ? "Applied" : ""}
-                        <SquareArrowOutUpRight className="h-4 w-4"/>
-                    </button>
-                </div>
-             <div className="jobcard-badges">
-                {jobType && <span className="jobcard-badge">{jobType}</span>}
-                <span className="jobcard-badge jobcard-badge--muted">{publisher}</span>
-                <span className="jobcard-badge jobcard-badge--muted">{applicationTypes}</span>
-            </div>
-            <div className="jobcard-meta">
-                <div className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4"/>
-                <span className="jobcard-location">{location}</span></div>
-                <div className="flex items-center gap-1.5">
-                <DollarSign className="h-4 w-4"/>
-                <span className="jobcard-pay">{formattedPay}</span></div>
-                <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4"/>
-                <span className="jobcard-date">Posted {formattedDate}</span></div>
-            </div>
-            <div className="jobcard-footer">
-                <button className="jobcard-action" type="button" onClick={(e) => { e.stopPropagation(); onSelect?.(id); }}>
-                    View role
-                </button>
-              <button className="jobcard-action jobcard-action--ghost" type="button" onClick={onSave}>
-                {isSaved ? "Unsave" : "Save"}
-              </button>
-            </div>
-
-            {showApplyPopup && (
-                <div className="apply-popup" onClick={() => setShowApplyPopup(false)}>
-                    <div className="apply-popup-card" onClick={(e) => e.stopPropagation()}>
-                        <p>Did you apply?</p>
-                        <div className="apply-popup-actions">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowApplyPopup(false);
-                                    onApply?.();
-                                }}
-                            >
-                                Yes
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowApplyPopup(false)}
-                            >
-                                No
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+      <Card>
+        <CardContent>
+      <div className="jobcard space-y-4 w-full" onClick={() => onSelect?.(id)}>
+        <div className="jobcard-header">
+          <div>
+            <h3 className="jobcard-title hover:cursor-pointer">{jobTitle}</h3>
+            <p className="jobcard-company">{companyName}</p>
+          </div>
+          
+          {applied && (
+          <div className="flex items-center">
+          <Badge variant="outline"
+          className="bg-emerald-100 text-emerald-900 px-3 py-2 text-sm">
+            <BadgeCheck className="h-6 w-6 mr-1"
+            data-icon="inline-start"/>
+            Applied
+          </Badge>
+        </div>)}
         </div>
+
+
+
+        <div className="jobcard-badges">
+          {jobType && <span className="jobcard-badge">{jobType}</span>}
+          <span className="jobcard-badge jobcard-badge--muted">
+            {publisher}
+          </span>
+          <span className="jobcard-badge jobcard-badge--muted">
+            {applicationTypes}
+          </span>
+        </div>
+
+        <div className="jobcard-meta">
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-4 w-4" />
+            <span className="jobcard-location">{location}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="h-4 w-4" />
+            <span className="jobcard-pay">{formattedPay}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4" />
+            <span className="jobcard-date">Posted {formattedDate}</span>
+          </div>
+        </div>
+
+        <div className="jobcard-footer">
+          <button
+            className="jobcard-action jobcard-action--ghost"
+            type="button"
+            onClick={onSave}
+          >
+            {isSaved ? "Unsave" : "Save"}
+          </button>
+          <button
+            className="jobcard-action flex gap-1"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPosting();
+              // onSelect?.(id); }}>
+            }}
+          >
+            View role
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      </CardContent>
+      </Card>
     );
 };
 

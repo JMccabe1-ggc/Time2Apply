@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import {
-  X,
   MapPin,
   Clock,
   ExternalLink,
@@ -18,13 +18,16 @@ interface JobDetailPanelProps {
   onClose: () => void;
   onSave?: (id: number) => void;
   saved?: boolean;
+  applied: boolean;
+  onAppliedChange?:(nextApplied:boolean) => void;
 }
 
 export function JobDetailPanel({
   job,
-  onClose,
   onSave,
   saved = false,
+  applied = false,
+  onAppliedChange,
 }: JobDetailPanelProps) {
   if (!job) return null;
 
@@ -37,7 +40,7 @@ export function JobDetailPanel({
         : "Date unknown";  
 
   return (
-    <div className="w-full lg:w-[480px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
+    <div className="w-full lg:w-[520px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border rounded-xl bg-card p-4">
         <h2 className="font-semibold text-foreground">Job Details</h2>
         {/* <Button variant="outline" size="icon" onClick={onClose}>
@@ -63,21 +66,21 @@ export function JobDetailPanel({
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 mb-2">
               <MapPin className="h-4 w-4" />
               <span>{job.location}</span>
             </div>
             {job.pay && (
               <>
-                <span>•</span>
-                <div className="flex items-center gap-1.5">
+                <span className="mb-2">•</span>
+                <div className="flex items-center gap-1.5 mb-2">
                   <DollarSign className="h-4 w-4" />
                   <span>{salaryText}</span>
                 </div>
               </>
             )}
-            <span>•</span>
-            <div className="flex items-center gap-1.5">
+            <span className="mb-2">•</span>
+            <div className="flex items-center gap-1.5 mb-2">
               <Clock className="h-4 w-4" />
               <span>{formattedDate}</span>
             </div>
@@ -85,8 +88,29 @@ export function JobDetailPanel({
 
           <Separator/>
 
-          {/* Job Description */}
           <ScrollArea className="h-[calc(100vh-180px)]">
+          <div className="flex items-center gap-50 m-2">
+            <h4>Have you applied?</h4>
+            <ButtonGroup>
+              <Button 
+              variant={"secondary"}
+              className={cn("hover:bg-primary hover:text-white", applied && "text-white bg-primary"
+              )}
+              onClick={() => onAppliedChange?.(true)}
+              >Yes</Button>
+              <ButtonGroupSeparator/>
+              <Button 
+              variant={"secondary"}
+              className={cn("hover:bg-primary hover:text-white", !applied && "text-white bg-primary"
+              )}
+              onClick={() => onAppliedChange?.(false)}
+              >No</Button>
+            </ButtonGroup>
+          </div>
+
+          <Separator/>
+
+          {/* Job Description */}
           <div>
             <h4 className="font-semibold text-foreground mb-3 pt-4 pl-2">
               About this role
