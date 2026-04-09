@@ -26,6 +26,7 @@ const Header = () => {
     };
 
     return(
+        <div className="sticky top-0 z-50 backdrop-blur">
         <header className="user-header">
             <h3 className="user-header__title">Time2Apply</h3>
             <nav className="user-header__nav" aria-label="Primary">
@@ -38,6 +39,7 @@ const Header = () => {
             </nav>
             <button className="user-header__signout" onClick={back2home}>Sign Out</button>
         </header>
+        </div>
     );
 };
 

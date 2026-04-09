@@ -9,8 +9,8 @@
 
 .user-layout {
     display: grid;
-    grid-template-columns: 280px minmax(0, 1fr) minmax(360px, 480px);
-    gap: 24px;
+    grid-template-columns: 280px minmax(0, 1fr) minmax(420px, 540px);
+    gap: 28px;
     padding: 24px 32px;
     align-items: flex-start;
 }
@@ -23,11 +23,12 @@
     top: 88px;
     align-self: start;
     z-index: 2;
-    background: #fffefe;
-    border: 1px solid #717376;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.4);
     border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+    padding: 22px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(14px);
 }
 
 .user-main {
@@ -38,7 +39,7 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .user-details {
@@ -53,7 +54,24 @@
 .user-aside h2 {
     margin: 0 0 12px;
     font-size: 18px;
-    color: #000000;
+    color: #0f172a;
+}
+
+.filters-header {
+    margin-bottom: 16px;
+}
+
+.filters-header p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.filters-scroll {
+    height: calc(100vh - 210px);
+    min-height: 260px;
+    padding-right: 6px;
 }
 
 .user-aside h4 {
@@ -73,17 +91,17 @@
 
 .user-aside input[type="text"] {
     width: 100%;
-    background: #0b1220;
-    border: 1px solid #1f2a3d;
-    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
     padding: 10px 12px;
     border-radius: 10px;
     outline: none;
 }
 
 .user-aside input[type="text"]:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
 }
 
 .user-aside input[type="checkbox"] {
@@ -93,14 +111,19 @@
 
 .user-aside hr {
     border: none;
-    border-top: 1px solid #1f2a3d;
+    border-top: 1px solid rgba(148, 163, 184, 0.28);
     margin: 16px 0;
 }
 
 .user-aside .slider {
     width: 100%;
     margin-top: 8px;
-    accent-color: #3b82f6;
+    accent-color: #38bdf8;
+}
+
+.user-aside .accordion-trigger {
+    padding-top: 14px;
+    padding-bottom: 14px;
 }
 
 .sidenav {
@@ -108,7 +131,11 @@
 }
 
 .return-count {
-    padding-bottom: 20px;
+    padding-bottom: 8px;
+}
+
+.user-main .jobcard {
+    margin: 0;
 }
 
 #search,
@@ -215,5 +242,15 @@
     .user-details {
         grid-column: 1;
         position: static;
+    }
+
+    .user-aside {
+        max-height: none;
+    }
+
+    .filters-scroll {
+        height: auto;
+        min-height: 0;
+        padding-right: 0;
     }
 }

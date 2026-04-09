@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import supabase from "@/lib/supabase";
 import { JobDetailPanel } from "./JobDetailPanel.tsx";
+import { Card } from "@/components/ui/card.tsx";
+import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 
 const JobSearchPage = () => {
   const {
@@ -28,7 +30,6 @@ const JobSearchPage = () => {
     setSearchTerm,
     locationTerm,
     setLocationTerm,
-    fetchJobs,
   } = useJobs();
 
   const {
@@ -198,10 +199,15 @@ const { error } = await supabase.from("saved_jobs").insert({
   setSavedJobIds((prev) => [...prev, jobId]);
 };
 
-const handleMarkApplied = async (job: any) => {
+const handleMarkApplied = async (job: any, nextApplied: boolean) => {
   const jobId = String(job.applyUrl);
 
-  setAppliedJobIds((prev) => (prev.includes(jobId) ? prev : [...prev, jobId]));
+  setAppliedJobIds((prev) => 
+    nextApplied 
+      ? prev.includes(jobId) 
+      ? prev 
+      : [...prev, jobId] 
+      : prev.filter((id) => id !== jobId));
 
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
@@ -210,10 +216,42 @@ const handleMarkApplied = async (job: any) => {
     return;
   }
 
-  if (savedJobIds.includes(jobId)) {
+    if (!savedJobIds.includes(jobId)) {
+    const formattedPay = job.pay
+      ? `${job.pay.currency} ${job.pay.min.toLocaleString()} - ${job.pay.max.toLocaleString()}`
+      : "Pay not listed";
+
+    const { error: insertError } = await supabase.from("saved_jobs").insert({
+      user_id: user.id,
+      job_id: jobId,
+      title: job.title,
+      company: job.company,
+      publisher: job.publisher,
+      location: job.location,
+      pay_text: formattedPay,
+      posted_date: job.datePosted,
+      apply_url: job.applyUrl,
+      job_type: job.jobType,
+      job_site: job.jobSite,
+      application_type: job.applicationType,
+      status: nextApplied ? "applied" : "saved",
+    });
+
+    if (insertError) {
+      console.error("Insert error:", insertError.message);
+      alert(insertError.message);
+      return;
+    }
+
+    setSavedJobIds((prev) =>
+      prev.includes(jobId) ? prev : [...prev, jobId]
+    );
+    return;
+  }
+
     const { error } = await supabase
       .from("saved_jobs")
-      .update({ status: "applied" })
+      .update({ status: nextApplied ? "applied" : "saved"})
       .eq("user_id", user.id)
       .eq("job_id", jobId);
 
@@ -222,16 +260,20 @@ const handleMarkApplied = async (job: any) => {
       alert(error.message);
       return;
     }
-  }
 };
 
   return (
     <div className="user-page">
       <Header />
       <div className="user-layout">
-        <aside className="user-aside">
+        <Card className="user-aside">
           <div className="sidenav">
-            <h2>Filters</h2>
+            <div className="filters-header">
+              <div>
+                <h2>Filters</h2>
+              </div>
+            </div>
+            <ScrollArea className="filters-scroll">
             <Accordion
               type="multiple"
               defaultValue={[
@@ -513,12 +555,13 @@ const handleMarkApplied = async (job: any) => {
                 </AccordionContent>
                 </AccordionItem>
             </Accordion>
+            </ScrollArea>
           </div>
-        </aside>
+        </Card>
 
         <main className="user-main">
           {error && <p className="error-message">Error: {error}</p>}
-          <div className="return-count flex items-center justify-start gap-1 mt-2">
+          <div className="return-count flex items-center justify-start gap-1">
             <Briefcase className="h-4 w-4 mr-1 shrink-0" />
             <span className="leading-none">{filteredJobs.length}</span> <span className="leading-none">jobs found</span>
           </div>
@@ -536,13 +579,12 @@ const handleMarkApplied = async (job: any) => {
               jobSite={job.jobSite}
               applicationTypes={job.applicationType}
               pay={job.pay}
-              applied={job.applied || appliedJobIds.includes(String(job.applyUrl))}
+              applied={appliedJobIds.includes(String(job.applyUrl))}
               jobPostedDate={job.datePosted}
               description={job.description}
               applyUrl={job.applyUrl}
               onSelect={(id) => setSelectedJobId(id)}
               onSave={() => handleSaveJob(job)}
-              onApply={() => handleMarkApplied(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}
             />
           ))}
@@ -561,6 +603,16 @@ const handleMarkApplied = async (job: any) => {
                 ? savedJobIds.includes(String(selectedJob.applyUrl))
                 : false
             }
+            applied = {
+              selectedJob 
+                ? appliedJobIds.includes(String(selectedJob.applyUrl)) 
+                : false
+            }
+            onAppliedChange={(nextApplied) => {
+              if(selectedJob) {
+                handleMarkApplied(selectedJob, nextApplied);
+              }
+            }}
           />
         </div>
       </div>
