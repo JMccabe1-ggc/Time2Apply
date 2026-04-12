@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header.tsx";
 import Jobcard from "../components/Jobcard.tsx";
 import { useJobs } from "../hooks/useJobs.ts";
@@ -22,6 +22,10 @@ import { Card } from "@/components/ui/card.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 
 const JobSearchPage = () => {
+  const [salarySort, setSalarySort] = useState<"default" | "salary-desc" | "salary-asc">("default");
+  const [postedDateSort, setPostedDateSort] = useState<"default" | "date-desc" | "date-asc">("default");
+  const [matchScoreSort, setMatchScoreSort] = useState<"default" | "score-desc" | "score-asc">("default");
+
   const {
     jobs,
     loading,
@@ -52,7 +56,68 @@ const JobSearchPage = () => {
   const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
   const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const filteredJobs = applyFilters(jobs);
-  const selectedJob = filteredJobs.find((j) => j.id === selectedJobId) ?? null;
+
+  const sortedJobs = useMemo(() => {
+    const getAnnualSalary = (job: (typeof jobs)[number]): number | null => {
+      if (!job.pay) return null;
+
+      const multipliers: Record<string, number> = {
+        hour: 2080,
+        week: 52,
+        month: 12,
+        year: 1,
+      };
+
+      const multiplier = multipliers[job.pay.period] ?? null;
+      if (multiplier == null) return null;
+
+      return Math.max(job.pay.min, job.pay.max) * multiplier;
+    };
+
+    const getTimestamp = (job: (typeof jobs)[number]): number => {
+      const parsed = Date.parse(job.datePosted);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    };
+
+    const getMatchScore = (job: (typeof jobs)[number]): number => {
+      const value = (job as { matchScore?: number; score?: number }).matchScore ?? (job as { score?: number }).score;
+      return typeof value === "number" ? value : 0;
+    };
+
+    const sorted = [...filteredJobs];
+
+    sorted.sort((a, b) => {
+      if (salarySort !== "default") {
+        const aSalary = getAnnualSalary(a) ?? Number.NEGATIVE_INFINITY;
+        const bSalary = getAnnualSalary(b) ?? Number.NEGATIVE_INFINITY;
+        if (aSalary !== bSalary) {
+          return salarySort === "salary-desc" ? bSalary - aSalary : aSalary - bSalary;
+        }
+      }
+
+      if (postedDateSort !== "default") {
+        const aDate = getTimestamp(a);
+        const bDate = getTimestamp(b);
+        if (aDate !== bDate) {
+          return postedDateSort === "date-desc" ? bDate - aDate : aDate - bDate;
+        }
+      }
+
+      if (matchScoreSort !== "default") {
+        const aScore = getMatchScore(a);
+        const bScore = getMatchScore(b);
+        if (aScore !== bScore) {
+          return matchScoreSort === "score-desc" ? bScore - aScore : aScore - bScore;
+        }
+      }
+
+      return 0;
+    });
+
+    return sorted;
+  }, [filteredJobs, jobs, salarySort, postedDateSort, matchScoreSort]);
+
+  const selectedJob = sortedJobs.find((j) => j.id === selectedJobId) ?? null;
   const fetchSavedJobs = async () => {
     const { data: sessionData } = await supabase.auth.getSession();
     const user = sessionData?.session?.user;
@@ -526,7 +591,13 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
 
                     <div className="sort-row">
                       <label htmlFor="salaryDropdown" className="sort-row__label">Salary</label>
-                      <select id="salaryDropdown" name="salarySort" className="sort-row__select">
+                      <select
+                        id="salaryDropdown"
+                        name="salarySort"
+                        className="sort-row__select"
+                        value={salarySort}
+                        onChange={(e) => setSalarySort(e.target.value as "default" | "salary-desc" | "salary-asc")}
+                      >
                         <option value="default">Default</option>
                         <option value="salary-desc">Highest to Lowest</option>
                         <option value="salary-asc">Lowest to Highest</option>
@@ -535,7 +606,13 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
 
                     <div className="sort-row">
                       <label htmlFor="postedDateDropdown" className="sort-row__label">Posted Date</label>
-                      <select id="postedDateDropdown" name="postedDateSort" className="sort-row__select">
+                      <select
+                        id="postedDateDropdown"
+                        name="postedDateSort"
+                        className="sort-row__select"
+                        value={postedDateSort}
+                        onChange={(e) => setPostedDateSort(e.target.value as "default" | "date-desc" | "date-asc")}
+                      >
                         <option value="default">Default</option>
                         <option value="date-desc">Newest to Oldest</option>
                         <option value="date-asc">Oldest to Newest</option>
@@ -544,7 +621,13 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
 
                     <div className="sort-row">
                       <label htmlFor="matchScoreDropdown" className="sort-row__label">Match Score</label>
-                      <select id="matchScoreDropdown" name="matchScoreSort" className="sort-row__select">
+                      <select
+                        id="matchScoreDropdown"
+                        name="matchScoreSort"
+                        className="sort-row__select"
+                        value={matchScoreSort}
+                        onChange={(e) => setMatchScoreSort(e.target.value as "default" | "score-desc" | "score-asc")}
+                      >
                         <option value="default">Default</option>
                         <option value="score-desc">Highest to Lowest</option>
                         <option value="score-asc">Lowest to Highest</option>
@@ -567,7 +650,7 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
           </div>
           {loading && <p>Loading jobs...</p>}
           {!loading && filteredJobs.length === 0}
-          {filteredJobs.map((job) => (
+          {sortedJobs.map((job) => (
             <Jobcard
               key={job.id}
               id={job.id}
@@ -595,7 +678,7 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
             job={selectedJob}
             onClose={() => setSelectedJobId(null)}
             onSave={(id) => {
-              const current = filteredJobs.find((j) => j.id === id);
+              const current = sortedJobs.find((j) => j.id === id);
               if (current) handleSaveJob(current);
             }}
             saved={
