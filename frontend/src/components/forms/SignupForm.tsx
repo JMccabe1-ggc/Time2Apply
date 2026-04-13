@@ -140,7 +140,7 @@ const getRuleBadgeClass = (isMet: boolean) => {
                   >
                     {rules.length ? "✓" : "•"}
                   </span>
-                  At least 8 characters
+                  At least 12 characters
                 </li>
 
                 <li className={`flex items-center gap-2 rounded-md border border-slate-700/70 bg-slate-800/40 px-2 py-1.5 ${getRuleTextClass(rules.uppercase)}`}>
