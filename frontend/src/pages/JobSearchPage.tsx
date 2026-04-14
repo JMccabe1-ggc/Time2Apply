@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { State, City, type ICity, type IState } from "country-state-city";
 import Header from "../components/Header.tsx";
 import Jobcard from "../components/Jobcard.tsx";
 import { useJobs } from "../hooks/useJobs.ts";
@@ -25,6 +26,29 @@ const JobSearchPage = () => {
   const [salarySort, setSalarySort] = useState<"default" | "salary-desc" | "salary-asc">("default");
   const [postedDateSort, setPostedDateSort] = useState<"default" | "date-desc" | "date-asc">("default");
   const [matchScoreSort, setMatchScoreSort] = useState<"default" | "score-desc" | "score-asc">("default");
+  const states: IState[] = State.getStatesOfCountry("US");
+
+  const [selectedState, setSelectedState] = useState<string>("");
+  const [cities, setCities] = useState<ICity[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const stateCode = e.target.value;
+    setSelectedState(stateCode);
+
+    if (stateCode) {
+      const stateCities: ICity[] = City.getCitiesOfState("US", stateCode);
+      setCities(stateCities);
+    } else {
+      setCities([]);
+      setSelectedCity("");
+    }
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const cityName = e.target.value;
+    setSelectedCity(cityName);
+  };
 
   const {
     jobs,
@@ -35,6 +59,21 @@ const JobSearchPage = () => {
     locationTerm,
     setLocationTerm,
   } = useJobs();
+
+  const [searchInput, setSearchInput] = useState<string>(searchTerm);
+
+  const handleLocationSearch = () => {
+    setSearchTerm(searchInput);
+
+    if (!selectedState) {
+      setLocationTerm("");
+      return;
+    }
+
+    const stateName = states.find((state) => state.isoCode === selectedState)?.name ?? "";
+    const locationQuery = selectedCity ? `${selectedCity}, ${stateName}` : stateName;
+    setLocationTerm(locationQuery);
+  };
 
   const {
     jobType,
@@ -364,8 +403,8 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
                       <input
                         id="search"
                         placeholder="e.g. Software Engineer"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
                         className="searchbox pl-9 h-9"
                       />
                     </div>
@@ -378,15 +417,46 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
                     >
                       Location
                     </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <input
-                        id="location"
-                        placeholder="City, state, or remote"
-                        value={locationTerm}
-                        onChange={(e) => setLocationTerm(e.target.value)}
-                        className="locationbox pl-9 h-9"
-                      />
+                    <div className="location-filter">
+                      <div className="location-filter__state-wrap">
+                        <MapPin className="location-filter__icon h-4 w-4" />
+                        <select
+                        name="state"
+                        id="state"
+                        value={selectedState}
+                        onChange={handleStateChange}
+                        className="location-filter__select location-filter__select--state"
+                        >
+                          <option value="">Select a state</option>
+                          {states.map((state) => (
+                            <option key={state.isoCode} value={state.isoCode}>
+                              {state.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                        <select
+                          name="city"
+                          id="city"
+                          value={selectedCity}
+                          onChange={handleCityChange}
+                          className="location-filter__select"
+                          disabled={!selectedState}
+                        >
+                          <option value="">{selectedState ? "Select a city" : "Select a state first"}</option>
+                          {cities.map((city) => (
+                            <option key={city.name} value={city.name}>
+                              {city.name}
+                            </option>
+                          ))}
+                        </select>
+                      <button
+                        type="button"
+                        className="location-filter__search-btn"
+                        onClick={handleLocationSearch}
+                      >
+                        Search
+                      </button>
                     </div>
                   </div>
                 </AccordionContent>
