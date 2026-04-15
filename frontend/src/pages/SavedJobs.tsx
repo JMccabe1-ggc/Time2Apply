@@ -109,7 +109,7 @@ const SavedJobsTab = () => {
     jobSite={job.job_site ?? "Unknown Site"}
     applicationTypes={job.application_type ?? "Unknown Apply Type"}
     payText={job.pay_text ?? "Pay not listed"}
-    applied={job.status === "applied"}
+    applied={!!job.status && job.status !== "saved"}
     jobPostedDate={job.posted_date ?? ""}
     applyUrl={job.apply_url ?? undefined}
     onSelect={() => {}}

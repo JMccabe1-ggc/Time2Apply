@@ -70,14 +70,14 @@ const JobSearchPage = () => {
       return;
     }
 
-  if (data) {
-    setSavedJobIds(data.map((item) => String(item.job_id)));
-    setAppliedJobIds(
-      data
-        .filter((item) => item.status === "applied")
-        .map((item) => String(item.job_id)),
-    );
-  }
+if (data) {
+  setSavedJobIds(data.map((item) => String(item.job_id)));
+  setAppliedJobIds(
+    data
+      .filter((item) => item.status !== "saved")
+      .map((item) => String(item.job_id)),
+  );
+}
 };
     useEffect(() => {
       const loadPageData = async () => {
@@ -202,12 +202,13 @@ const { error } = await supabase.from("saved_jobs").insert({
 const handleMarkApplied = async (job: any, nextApplied: boolean) => {
   const jobId = String(job.applyUrl);
 
-  setAppliedJobIds((prev) => 
-    nextApplied 
-      ? prev.includes(jobId) 
-      ? prev 
-      : [...prev, jobId] 
-      : prev.filter((id) => id !== jobId));
+  setAppliedJobIds((prev) =>
+    nextApplied
+      ? prev.includes(jobId)
+        ? prev
+        : [...prev, jobId]
+      : prev.filter((id) => id !== jobId)
+  );
 
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
@@ -216,7 +217,45 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
     return;
   }
 
-    if (!savedJobIds.includes(jobId)) {
+  const applicationRecord = {
+    id: jobId,
+    jobTitle: job.title,
+    company: job.company,
+    dateApplied: new Date().toISOString().split("T")[0],
+    status: nextApplied ? "applied" : "saved",
+    applyUrl: job.applyUrl,
+  };
+
+  const existingApplications = JSON.parse(
+    localStorage.getItem("applications") || "[]"
+  );
+
+  let updatedApplications;
+
+  if (nextApplied) {
+    const alreadyExists = existingApplications.some(
+      (app: any) => String(app.id) === jobId
+    );
+
+    if (alreadyExists) {
+      updatedApplications = existingApplications.map((app: any) =>
+        String(app.id) === jobId
+          ? { ...app, status: "applied", dateApplied: applicationRecord.dateApplied }
+          : app
+      );
+    } else {
+      updatedApplications = [...existingApplications, applicationRecord];
+    }
+
+    localStorage.setItem("applications", JSON.stringify(updatedApplications));
+  }  else {
+  updatedApplications = existingApplications.filter(
+    (app: any) => String(app.id) !== jobId
+  );
+
+  localStorage.setItem("applications", JSON.stringify(updatedApplications));
+}
+  if (!savedJobIds.includes(jobId)) {
     const formattedPay = job.pay
       ? `${job.pay.currency} ${job.pay.min.toLocaleString()} - ${job.pay.max.toLocaleString()}`
       : "Pay not listed";
@@ -249,17 +288,17 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
     return;
   }
 
-    const { error } = await supabase
-      .from("saved_jobs")
-      .update({ status: nextApplied ? "applied" : "saved"})
-      .eq("user_id", user.id)
-      .eq("job_id", jobId);
+  const { error } = await supabase
+    .from("saved_jobs")
+    .update({ status: nextApplied ? "applied" : "saved" })
+    .eq("user_id", user.id)
+    .eq("job_id", jobId);
 
-    if (error) {
-      console.error("Update error:", error.message);
-      alert(error.message);
-      return;
-    }
+  if (error) {
+    console.error("Update error:", error.message);
+    alert(error.message);
+    return;
+  }
 };
 
   return (
