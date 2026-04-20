@@ -120,6 +120,116 @@ async def upload_resume(file: UploadFile = File(...)):
     }
     
 
+@app.get("/resume")
+async def get_uploaded_resume():
+    try:
+        resume_res = (
+            supabase.table("resumes")
+            .select("id, file_name, file_size, is_active, created_at")
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .order("created_at", desc=True)
+            .execute()
+    )
+        return resume_res.data or []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load resumes: {str(e)}")
+
+@app.patch("/resume/{id}/active")
+async def update_active_resume(id: str):
+    try:
+        # find the target resume for this user
+        resume_res = (
+            supabase.table("resumes")
+            .select("id")
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("id", id)
+            .execute()
+        )
+
+        # if not found, raise 404
+        if not resume_res.data:
+            raise HTTPException(status_code=404, detail="Resume not found")
+
+        # deactivate all resumes for this user
+        supabase.table("resumes") \
+            .update({"is_active": False}) \
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .execute()
+
+        # activate the selected resume
+        supabase.table("resumes") \
+            .update({"is_active": True}) \
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("id", id) \
+            .execute()
+
+        # return success
+        return {
+            "message": "Active resume updated",
+            "active_resume_id": id
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update resume: {str(e)}")
+    
+
+@app.delete("/resume/{id}")
+async def delete_resume(id: str):
+    try:
+        # ensure resume exists and belongs to this user
+        resume_res = (
+            supabase.table("resumes")
+            .select("id, is_active")
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("id", id)
+            .execute()
+        )
+
+        if not resume_res.data:
+            raise HTTPException(status_code=404, detail="Resume not found")
+        
+
+        # delete dependent resume_skills first
+        supabase.table("resume_skills") \
+            .delete() \
+            .eq("resume_id", id) \
+            .execute()
+
+        # delete the resume row
+        supabase.table("resumes") \
+            .delete() \
+            .eq("id", id) \
+            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .execute()
+
+        # 4) optional: if deleted resume was active, promote another one
+        deleted_was_active = resume_res.data[0].get("is_active", False)
+        if deleted_was_active:
+            next_resume = (
+                supabase.table("resumes")
+                .select("id")
+                .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if next_resume.data:
+                supabase.table("resumes") \
+                    .update({"is_active": True}) \
+                    .eq("id", next_resume.data[0]["id"]) \
+                    .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+                    .execute()
+
+        return {"message": "Resume deleted", "deleted_resume_id": id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete resume: {str(e)}")
+
 @app.get("/resume/active/skills")
 async def get_active_resume_skills():
     resume_res = (
