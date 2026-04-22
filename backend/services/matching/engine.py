@@ -17,11 +17,13 @@ def cosine_similarity(vec1, vec2):
     return dot_product / (magnitude1 * magnitude2)
 
 
-def calculate_match_percentage(similarity: float):
-    # Clamp between 0–1 for safety
-    similarity = max(0.0, min(1.0, similarity))
+def calculate_match_percentage(similarity: float, skill_overlap_score: float):
+    final_score = (0.3 * similarity) + (0.7 * skill_overlap_score)
 
-    return round(similarity * 100, 2)
+    # Clamp between 0–1 for safety
+    final_score = max(0.0, min(1.0, final_score))
+
+    return round(final_score * 100, 2)
 
 
 def build_explanation(resume_skills: set, job_skills: set):
@@ -33,16 +35,26 @@ def build_explanation(resume_skills: set, job_skills: set):
         "missing_skills": list(missing)
     }
 
+def calculate_skill_overlap_score(resume_skills: set, job_skills: set):
+    if not job_skills:
+        return 0.0
+
+    matched_skills = resume_skills.intersection(job_skills)
+    return len(matched_skills) / len(job_skills)
+
 
 def compute_match(resume_embedding, job_embedding, resume_skills, job_skills):
     similarity = cosine_similarity(resume_embedding, job_embedding)
 
-    match_percentage = calculate_match_percentage(similarity)
+    skill_overlap_score = calculate_skill_overlap_score(resume_skills, job_skills)
+
+    match_percentage = calculate_match_percentage(similarity, skill_overlap_score)
 
     explanation = build_explanation(resume_skills, job_skills)
 
     return {
         "match_percentage": match_percentage,
         "similarity": similarity,
+        "skill_overlap_score": skill_overlap_score,
         **explanation
     }
