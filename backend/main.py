@@ -14,6 +14,8 @@ from services.matching.engine import compute_match
 
 from services.skill_extraction.extractor import extract_skills_from_text
 
+from services.ghost_detection.engine import (compute_ghost_risk, build_job_fingerprint)
+
 app = FastAPI()
 
 app.add_middleware(
@@ -376,6 +378,26 @@ def search_job(data: JobSearchQuery):
     # Insert jobs + mapping
     for job in api_jobs:
 
+        job_fingerprint = build_job_fingerprint(
+            job["title"],
+            job["company"],
+            job["location"]
+        )
+
+        existing_fingerprint_res = (
+            supabase.table("jobs")
+            .select("id", count="exact")
+            .eq("job_fingerprint", job_fingerprint)
+            .execute()
+        )
+
+        existing_fingerprint_count = existing_fingerprint_res.count or 0
+
+        ghost_result = compute_ghost_risk(
+            posted_date=job.get("posted_date"),
+            existing_fingerprint_count=existing_fingerprint_count
+        )
+
         job_skills = extract_skills_from_text(job["description"] or "")
         job_embedding = generate_embedding(job["description"] or "")
 
@@ -399,10 +421,18 @@ def search_job(data: JobSearchQuery):
                 "source": "jsearch",
                 "raw_data": job,
                 "embedding": job_embedding,
+                "ghost_risk_score":ghost_result["ghost_risk_score"],
+                "ghost_risk_level":ghost_result["ghost_risk_level"],
+                "ghost_flags":ghost_result["ghost_flags"],
+                "job_fingerprint":job_fingerprint,
                 "fetched_at": now.isoformat()
             }, on_conflict="external_job_id,source")
             .execute()
         )
+
+        job["ghost_risk_score"] = ghost_result["ghost_risk_score"]
+        job["ghost_risk_level"] = ghost_result["ghost_risk_level"]
+        job["ghost_flags"] = ghost_result["ghost_flags"]
 
         job_id = job_insert.data[0]["id"]
 
