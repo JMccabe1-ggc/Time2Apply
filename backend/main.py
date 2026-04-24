@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from config.client import supabase  
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import requests
 import os
 import fitz
 import json
+import auth
+from auth import get_current_user, CurrentUser
 from services.embedding.encoder import generate_embedding
 
 from services.matching.engine import compute_match
@@ -17,6 +19,7 @@ from services.skill_extraction.extractor import extract_skills_from_text
 from services.ghost_detection.engine import (compute_ghost_risk, build_job_fingerprint)
 
 app = FastAPI()
+app.include_router(auth.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,7 +44,10 @@ class JobSearchQuery(BaseModel):
     location: str
 
 @app.post("/resume/upload")
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(get_current_user),
+):
 
     # validating
     if file.content_type != "application/pdf":
@@ -74,13 +80,12 @@ async def upload_resume(file: UploadFile = File(...)):
     # Deactivate old resumes
     supabase.table("resumes") \
         .update({"is_active": False}) \
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+        .eq("user_id", current_user.id) \
         .execute()
 
     # Insert new resume
     insert_res = supabase.table("resumes").insert({
-        # "user_id": current_user.id,
-        "user_id": "4f81add4-3bf6-45d3-911a-2082d2b5ef51",
+        "user_id": current_user.id,
         "file_name": file.filename,
         "file_size": len(file_bytes),
         "file_path": "file_path",
@@ -123,12 +128,14 @@ async def upload_resume(file: UploadFile = File(...)):
     
 
 @app.get("/resume")
-async def get_uploaded_resume():
+async def get_uploaded_resume(
+    current_user: CurrentUser = Depends(get_current_user),
+):
     try:
         resume_res = (
             supabase.table("resumes")
             .select("id, file_name, file_size, is_active, created_at")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", current_user.id)
             .order("created_at", desc=True)
             .execute()
     )
@@ -137,13 +144,16 @@ async def get_uploaded_resume():
         raise HTTPException(status_code=500, detail=f"Failed to load resumes: {str(e)}")
 
 @app.patch("/resume/{id}/active")
-async def update_active_resume(id: str):
+async def update_active_resume(
+    id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+):
     try:
         # find the target resume for this user
         resume_res = (
             supabase.table("resumes")
             .select("id")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", current_user.id)
             .eq("id", id)
             .execute()
         )
@@ -155,13 +165,13 @@ async def update_active_resume(id: str):
         # deactivate all resumes for this user
         supabase.table("resumes") \
             .update({"is_active": False}) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", current_user.id) \
             .execute()
 
         # activate the selected resume
         supabase.table("resumes") \
             .update({"is_active": True}) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", current_user.id) \
             .eq("id", id) \
             .execute()
 
@@ -178,13 +188,16 @@ async def update_active_resume(id: str):
     
 
 @app.delete("/resume/{id}")
-async def delete_resume(id: str):
+async def delete_resume(
+    id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+):
     try:
         # ensure resume exists and belongs to this user
         resume_res = (
             supabase.table("resumes")
             .select("id, is_active")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", current_user.id)
             .eq("id", id)
             .execute()
         )
@@ -203,7 +216,7 @@ async def delete_resume(id: str):
         supabase.table("resumes") \
             .delete() \
             .eq("id", id) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", current_user.id) \
             .execute()
 
         # 4) optional: if deleted resume was active, promote another one
@@ -212,7 +225,7 @@ async def delete_resume(id: str):
             next_resume = (
                 supabase.table("resumes")
                 .select("id")
-                .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+                .eq("user_id", current_user.id)
                 .order("created_at", desc=True)
                 .limit(1)
                 .execute()
@@ -222,7 +235,7 @@ async def delete_resume(id: str):
                 supabase.table("resumes") \
                     .update({"is_active": True}) \
                     .eq("id", next_resume.data[0]["id"]) \
-                    .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+                    .eq("user_id", current_user.id) \
                     .execute()
 
         return {"message": "Resume deleted", "deleted_resume_id": id}
@@ -233,11 +246,13 @@ async def delete_resume(id: str):
         raise HTTPException(status_code=500, detail=f"Failed to delete resume: {str(e)}")
 
 @app.get("/resume/active/skills")
-async def get_active_resume_skills():
+async def get_active_resume_skills(
+    current_user: CurrentUser = Depends(get_current_user),
+):
     resume_res = (
         supabase.table("resumes")
         .select("id")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("user_id", current_user.id)
         .eq("is_active", True)
         .single()
         .execute()
@@ -272,246 +287,211 @@ async def get_active_resume_skills():
     return {"skills": skills}  
 
 @app.post("/jobs/search")
-def search_job(data: JobSearchQuery):
-
-# Get the active resume for the job match %
-    resume_res = (
-        supabase.table("resumes")
-        .select("*")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
-        .eq("is_active", True)
-        .limit(1)
-        .execute()
-    )
-
-    active_resume = resume_res.data[0] if resume_res.data else None
-
-    resume_skills = set()
-
-    if active_resume:
-        skills_res = (
-            supabase.table("resume_skills")
-            .select("skills(skill_name)")
-            .eq("resume_id", active_resume["id"])
+def search_job(
+    data: JobSearchQuery, 
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    try:
+        # Get the active resume for the job match %
+        resume_res = (
+            supabase.table("resumes")
+            .select("*")
+            .eq("user_id", current_user.id)
+            .eq("is_active", True)
+            .limit(1)
             .execute()
         )
 
-        resume_skills = {
-            item["skills"]["skill_name"]
-            for item in skills_res.data
-        }
+        active_resume = resume_res.data[0] if resume_res.data else None
 
-    normalize_query = data.title.strip().lower()
-    normalize_location = data.location.strip().lower() if data.location else None
+        resume_skills = set()
 
-    # Before we call the API, we check if the query exist
-    existing = (
-        supabase.table("search_queries")
-        .select("*")
-        .eq("query_text", normalize_query)
-        .eq("location", normalize_location)
-        .execute()
-    )
-
-    now = datetime.utcnow()
-
-    # check if table exist and still populated
-    if existing.data:
-        search_row = existing.data[0]
-
-        # Check the expiration date
-        if search_row["expires_at"] and now < datetime.fromisoformat(search_row["expires_at"]):
-
-            jobs = (
-                supabase.table("search_results")
-                .select("jobs(*)")
-                .eq("search_query_id", search_row["id"])
+        if active_resume:
+            skills_res = (
+                supabase.table("resume_skills")
+                .select("skills(skill_name)")
+                .eq("resume_id", active_resume["id"])
                 .execute()
             )
 
-            jobs_list = [item["jobs"] for item in jobs.data]
-
-            enriched_jobs = attach_match_data(
-                jobs_list,
-                active_resume,
-                resume_skills
-            )
-
-            return {
-                "source": "cache",
-                "jobs": enriched_jobs
+            resume_skills = {
+                item["skills"]["skill_name"]
+                for item in skills_res.data
             }
-    
-    # The search query is empty and already expired, CALL the API
-    try:
-        api_jobs = call_jsearch_api(normalize_query, normalize_location)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="External API failed")
-    
-    expires_at = now + timedelta(hours=12)
 
-    # This is if data exist but expired
-    if existing.data:
-        search_query_id = search_row["id"]
+        normalize_query = data.title.strip().lower()
+        normalize_location = data.location.strip().lower() if data.location else None
 
-        supabase.table("search_queries").update({
-            "last_fetched_at": now.isoformat(),
-            "expires_at": expires_at.isoformat()
-        }).eq("id", search_query_id).execute()
-
-        # Clean old mappings
-        supabase.table("search_results").delete().eq("search_query_id", search_query_id).execute()
-
-    else:
-        new_search = (
+        existing = (
             supabase.table("search_queries")
-            .insert({
-                "query_text": normalize_query,
-                "location": normalize_location,
+            .select("*")
+            .eq("user_id", current_user.id)
+            .eq("query_text", normalize_query)
+            .eq("location", normalize_location)
+            .execute()
+        )
+
+        def parse_utc_datetime(value: str | datetime) -> datetime:
+            parsed_value = value if isinstance(value, datetime) else datetime.fromisoformat(value)
+            if parsed_value.tzinfo is None:
+                return parsed_value.replace(tzinfo=timezone.utc)
+            return parsed_value.astimezone(timezone.utc)
+
+        now = datetime.now(timezone.utc)
+
+        if existing.data:
+            search_row = existing.data[0]
+
+            if search_row["expires_at"] and now < parse_utc_datetime(search_row["expires_at"]):
+                jobs = (
+                    supabase.table("search_results")
+                    .select("jobs(*)")
+                    .eq("search_query_id", search_row["id"])
+                    .execute()
+                )
+
+                jobs_list = [item["jobs"] for item in jobs.data]
+                if jobs_list:
+                    enriched_jobs = attach_match_data(jobs_list, active_resume, resume_skills)
+                    return {"source": "cache", "jobs": enriched_jobs}
+
+        try:
+            api_jobs = call_jsearch_api(normalize_query, normalize_location)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"External API failed:{str(e)}")
+
+        expires_at = now + timedelta(hours=12)
+
+        if existing.data:
+            search_query_id = search_row["id"]
+
+            supabase.table("search_queries").update({
                 "last_fetched_at": now.isoformat(),
                 "expires_at": expires_at.isoformat()
-            })
-            .execute()
-        )
-        search_query_id = new_search.data[0]["id"]
-    
-    # Insert jobs + mapping
-    for job in api_jobs:
+            }).eq("id", search_query_id).execute()
 
-        job_fingerprint = build_job_fingerprint(
-            job["title"],
-            job["company"],
-            job["location"]
-        )
-
-        existing_fingerprint_res = (
-            supabase.table("jobs")
-            .select("id", count="exact")
-            .eq("job_fingerprint", job_fingerprint)
-            .execute()
-        )
-
-        existing_fingerprint_count = existing_fingerprint_res.count or 0
-
-        ghost_result = compute_ghost_risk(
-            posted_date=job.get("posted_date"),
-            existing_fingerprint_count=existing_fingerprint_count
-        )
-
-        job_skills = extract_skills_from_text(job["description"] or "")
-        job_embedding = generate_embedding(job["description"] or "")
-
-        # print(type(job_embedding), job_embedding[:5])
-
-        # Upsert job
-        job_insert = (
-            supabase.table("jobs")
-            .upsert({
-                "external_job_id": job["external_id"],
-                "title": job["title"],
-                "company": job["company"],
-                "location": job["location"],
-                "publisher": job["publisher"],
-                "description": job["description"],
-                "salary_min": job.get("salary_min"),
-                "salary_max": job.get("salary_max"),
-                "job_type": job.get("job_type"),
-                "posted_date": job.get("posted_date"),
-                "apply_url": job.get("apply_url"),
-                "source": "jsearch",
-                "raw_data": job,
-                "embedding": job_embedding,
-                "ghost_risk_score":ghost_result["ghost_risk_score"],
-                "ghost_risk_level":ghost_result["ghost_risk_level"],
-                "ghost_flags":ghost_result["ghost_flags"],
-                "job_fingerprint":job_fingerprint,
-                "fetched_at": now.isoformat()
-            }, on_conflict="external_job_id,source")
-            .execute()
-        )
-
-        job["ghost_risk_score"] = ghost_result["ghost_risk_score"]
-        job["ghost_risk_level"] = ghost_result["ghost_risk_level"]
-        job["ghost_flags"] = ghost_result["ghost_flags"]
-
-        job_id = job_insert.data[0]["id"]
-
-        # job_skills_res = (
-        #     supabase.table("job_skills")
-        #     .select("skills(skill_name)")
-        #     .eq("job_id", job_id)
-        #     .execute()
-        # )
-
-        # job_skills = {
-        #     item["skills"]["skill_name"] for item in job_skills_res.data
-        # }
-
-        # 
-        job_skills = set(job_skills)
-
-        for skill in job_skills:
-            skill_row = (
-                supabase.table("skills")
-                .select("id")
-                .eq("skill_name", skill)
-                .single()
-                .execute()
-            )
-
-            if not skill_row.data:
-                continue
-
-            skill_id = skill_row.data["id"]
-
-            existing = supabase.table("job_skills") \
-                .select("id") \
-                .eq("job_id", job_id) \
-                .eq("skill_id", skill_id) \
-                .execute()
-
-            if not existing.data:
-                supabase.table("job_skills").insert({
-                    "job_id": job_id,
-                    "skill_id": skill_id
-                }).execute()
-
-            # if not existing_skill.data:
-            #     supabase.table("job_skills").insert({
-            #         "job_id": job_id,
-            #         "skill_id": skill_id
-            #     }).execute()
-
-        # JOB MATCHING
-        
-        resume_embedding = parse_embedding(active_resume.get("embedding") if active_resume else None)
-
-        if resume_embedding and job_embedding:
-            match_result = compute_match(
-                resume_embedding,
-                job_embedding,
-                resume_skills,
-                job_skills
-            )
+            supabase.table("search_results").delete().eq("search_query_id", search_query_id).execute()
         else:
-            match_result = {
-                "match_percentage": 0,
-                "matched_skills": [],
-                "missing_skills": []
-            }
+            new_search = (
+                supabase.table("search_queries")
+                .insert({
+                    "user_id": current_user.id,
+                    "query_text": normalize_query,
+                    "location": normalize_location,
+                    "last_fetched_at": now.isoformat(),
+                    "expires_at": expires_at.isoformat()
+                })
+                .execute()
+            )
+            search_query_id = new_search.data[0]["id"]
 
-        job["match"] = match_result
+        for job in api_jobs:
+            job_fingerprint = build_job_fingerprint(job["title"], job["company"], job["location"])
 
-        # Link search to job
-        supabase.table("search_results").insert({
-            "search_query_id": search_query_id,
-            "job_id": job_id
-        }).execute()
+            existing_fingerprint_res = (
+                supabase.table("jobs")
+                .select("id", count="exact")
+                .eq("job_fingerprint", job_fingerprint)
+                .execute()
+            )
 
-    return {
-        "source": "api",
-        "jobs": api_jobs
-    }
+            existing_fingerprint_count = existing_fingerprint_res.count or 0
+
+            ghost_result = compute_ghost_risk(
+                posted_date=job.get("posted_date"),
+                existing_fingerprint_count=existing_fingerprint_count
+            )
+
+            job_skills = extract_skills_from_text(job["description"] or "")
+            job_embedding = generate_embedding(job["description"] or "")
+
+            job_insert = (
+                supabase.table("jobs")
+                .upsert({
+                    "external_job_id": job["external_id"],
+                    "title": job["title"],
+                    "company": job["company"],
+                    "location": job["location"],
+                    "publisher": job["publisher"],
+                    "description": job["description"],
+                    "salary_min": job.get("salary_min"),
+                    "salary_max": job.get("salary_max"),
+                    "job_type": job.get("job_type"),
+                    "posted_date": job.get("posted_date"),
+                    "apply_url": job.get("apply_url"),
+                    "source": "jsearch",
+                    "raw_data": job,
+                    "embedding": job_embedding,
+                    "ghost_risk_score": ghost_result["ghost_risk_score"],
+                    "ghost_risk_level": ghost_result["ghost_risk_level"],
+                    "ghost_flags": ghost_result["ghost_flags"],
+                    "job_fingerprint": job_fingerprint,
+                    "fetched_at": now.isoformat()
+                }, on_conflict="external_job_id,source")
+                .execute()
+            )
+
+            job["ghost_risk_score"] = ghost_result["ghost_risk_score"]
+            job["ghost_risk_level"] = ghost_result["ghost_risk_level"]
+            job["ghost_flags"] = ghost_result["ghost_flags"]
+
+            job_id = job_insert.data[0]["id"]
+
+            job_skills = set(job_skills)
+
+            for skill in job_skills:
+                skill_row = (
+                    supabase.table("skills")
+                    .select("id")
+                    .eq("skill_name", skill)
+                    .maybe_single()
+                    .execute()
+                )
+
+                if not skill_row.data:
+                    continue
+
+                skill_id = skill_row.data["id"]
+
+                existing = (
+                    supabase.table("job_skills")
+                    .select("id")
+                    .eq("job_id", job_id)
+                    .eq("skill_id", skill_id)
+                    .execute()
+                )
+
+                if not existing.data:
+                    supabase.table("job_skills").insert({
+                        "job_id": job_id,
+                        "skill_id": skill_id
+                    }).execute()
+
+            resume_embedding = parse_embedding(active_resume.get("embedding") if active_resume else None)
+
+            if resume_embedding and job_embedding:
+                match_result = compute_match(resume_embedding, job_embedding, resume_skills, job_skills)
+            else:
+                match_result = {
+                    "match_percentage": 0,
+                    "matched_skills": [],
+                    "missing_skills": []
+                }
+
+            job["match"] = match_result
+
+            supabase.table("search_results").insert({
+                "search_query_id": search_query_id,
+                "job_id": job_id
+            }).execute()
+
+        return {
+            "source": "api",
+            "jobs": api_jobs
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"search_job crash: {str(e)}")
 
 def call_jsearch_api(query: str, location: str, radius: int = 25):
     url = "https://jsearch.p.rapidapi.com/search"
@@ -644,18 +624,25 @@ def read_root():
 
 
 #THIS IS PROFILES
-@app.get("/profiles")
-def get_profiles():
+@app.get("/profiles/me")
+def get_profiles(
+    current_user: CurrentUser = Depends(get_current_user),):
     try:
-        res = supabase.table("profiles").select("*").execute()
+        res = (
+            supabase.table("profiles")
+            .select("*")
+            .eq("user_id", current_user.id)
+            .maybe_single()
+            .execute()
+            )
         return res.data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/signup")
-def show_signup_data():
-    res = supabase.table("profiles").select("*").execute()
-    return res.data
+# @app.get("/signup")
+# def show_signup_data():
+#     res = supabase.table("profiles").select("*").execute()
+#     return res.data
 
 # THIS IS SIGNUP: Auth , DB insert  
 @app.post("/signup")
@@ -721,3 +708,8 @@ def validate_password(password: str):
 
     if not re.search("[!@#$%^&*(),.?\":{}|<>_\-\\/\[\]`~+=;']", password):
         raise HTTPException(status_code=400, detail="Password must include at least one special character.")
+    
+
+@app.get("/me")
+def me(current_user: CurrentUser = Depends(get_current_user)):
+    return {"user_id": current_user.id, "email": current_user.email}

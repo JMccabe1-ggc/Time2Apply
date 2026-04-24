@@ -20,8 +20,11 @@ def parse_posted_date(posted_date: str | None):
         return None
 
     try:
-        # Handles ISO strings ending in Z
-        return datetime.fromisoformat(posted_date.replace("Z", "+00:00"))
+        # Handles ISO strings ending in Z and normalizes naive values to UTC.
+        parsed_date = datetime.fromisoformat(posted_date.replace("Z", "+00:00"))
+        if parsed_date.tzinfo is None:
+            return parsed_date.replace(tzinfo=timezone.utc)
+        return parsed_date.astimezone(timezone.utc)
     except Exception:
         return None
 

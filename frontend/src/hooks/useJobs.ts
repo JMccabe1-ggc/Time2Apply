@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import type { Job } from "../types/job.ts";
 import { mapApiResponseToJobs } from "../lib/jobMapper.ts";
+import supabase from "@/lib/supabase.ts";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 const DEBOUNCE_MS = 500;
+
+async function getAuthHeaders() {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  if (!token) {
+    throw new Error("Please sign in first.");
+  }
+
+  return { Authorization: `Bearer ${token}` };
+}
 
 export const useJobs = () => {
     const [jobs, setJobs] = useState<Job[]>([]);
@@ -25,9 +37,13 @@ export const useJobs = () => {
         setLoading(true);
         setError(null);
         try {//ERROR HERE ONLY IN CONSOLE
+            const authHeaders = await getAuthHeaders();
+
             const response = await fetch(`${API_BASE_URL}/jobs/search`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                ...authHeaders },
                 body: JSON.stringify({
                     title: safeTitle,
                     location: safeLocation,
@@ -35,7 +51,8 @@ export const useJobs = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to fetch jobs: ${response.status}`);
+                const errText = await response.text()
+                throw new Error(`Failed to fetch jobs: ${response.status}` + errText);
             }
 
             const data = await response.json();

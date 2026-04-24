@@ -28,8 +28,20 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import supabase from "@/lib/supabase";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
+
+async function getAuthHeaders() {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  if (!token) {
+    throw new Error("Please sign in first.");
+  }
+
+  return { Authorization: `Bearer ${token}` };
+}
 
 type ResumeRow = {
   id: string;
@@ -111,6 +123,7 @@ const Resume = () => {
 
       const response = await fetch(`${API_BASE_URL}/resume/upload`, {
         method: "POST",
+        headers: await getAuthHeaders(),
         body: data,
       });
 
@@ -157,6 +170,7 @@ const Resume = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/resume/${targetResumeId}/active`, {
         method: "PATCH",
+        headers: await getAuthHeaders(),
       })
 
       if(!response.ok) {
@@ -191,6 +205,7 @@ const handleDeleteResume = async (targetResumeId: string) => {
   try {
     const response = await fetch(`${API_BASE_URL}/resume/${targetResumeId}`, {
       method: "DELETE",
+      headers: await getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -209,7 +224,9 @@ const handleDeleteResume = async (targetResumeId: string) => {
       try {
         setResumesLoading(true)
 
-        const resumeResponse = await fetch(`${API_BASE_URL}/resume`)
+        const resumeResponse = await fetch(`${API_BASE_URL}/resume`, {
+          headers: await getAuthHeaders(),
+        })
         const resumeResult = await resumeResponse.json()
 
         console.log("uploaded resume", resumeResult)

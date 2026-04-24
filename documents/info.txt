@@ -22,3 +22,12 @@ test (backend)
 ----------------------------------------
 pip install pytest
 pytest 
+
+# to check backend modules version
+pip freeze
+
+#to create a requirements.txt of all modules
+pip freeze > requirements.txt
+
+# to update outdated modules
+pip install --upgrade -r requirements.txt
