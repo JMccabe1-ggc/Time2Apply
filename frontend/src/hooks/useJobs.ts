@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Job } from "../types/job.ts";
 import { mapApiResponseToJobs } from "../lib/jobMapper.ts";
+import { getAuthHeaders } from "../lib/api.ts";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 const DEBOUNCE_MS = 500;
@@ -25,9 +26,10 @@ export const useJobs = () => {
         setLoading(true);
         setError(null);
         try {//ERROR HERE ONLY IN CONSOLE
+            const headers = await getAuthHeaders({ "Content-Type": "application/json" });
             const response = await fetch(`${API_BASE_URL}/jobs/search`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: JSON.stringify({
                     title: safeTitle,
                     location: safeLocation,

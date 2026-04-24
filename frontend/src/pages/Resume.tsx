@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { getAuthHeaders } from "@/lib/api";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -60,7 +61,8 @@ const Resume = () => {
   useEffect(() => {
     const loadSkills = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/resume/active/skills`);
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/resume/active/skills`, { headers });
         const result = await response.json();
 
         console.log("loaded skills:", result);
@@ -108,9 +110,11 @@ const Resume = () => {
 
     try {
       setLoading(true);
+      const headers = await getAuthHeaders();
 
       const response = await fetch(`${API_BASE_URL}/resume/upload`, {
         method: "POST",
+        headers,
         body: data,
       });
 
@@ -155,8 +159,10 @@ const Resume = () => {
     setResumes(updatedResumes)
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resume/${targetResumeId}/active`, {
         method: "PATCH",
+        headers,
       })
 
       if(!response.ok) {
@@ -189,8 +195,10 @@ const handleDeleteResume = async (targetResumeId: string) => {
   setResumes(updatedResumes);
 
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE_URL}/resume/${targetResumeId}`, {
       method: "DELETE",
+      headers,
     });
 
     if (!response.ok) {
@@ -208,8 +216,9 @@ const handleDeleteResume = async (targetResumeId: string) => {
 
       try {
         setResumesLoading(true)
+        const headers = await getAuthHeaders();
 
-        const resumeResponse = await fetch(`${API_BASE_URL}/resume`)
+        const resumeResponse = await fetch(`${API_BASE_URL}/resume`, { headers })
         const resumeResult = await resumeResponse.json()
 
         console.log("uploaded resume", resumeResult)

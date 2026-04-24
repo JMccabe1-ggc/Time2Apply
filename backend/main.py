@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from config.client import supabase  
@@ -40,8 +40,47 @@ class JobSearchQuery(BaseModel):
     title: str
     location: str
 
+def get_current_user(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing Authorization header",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    scheme, _, token = authorization.partition(" ")
+
+    if scheme.lower() != "bearer" or not token.strip():
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authorization header",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        auth_res = supabase.auth.get_user(token.strip())
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    user = getattr(auth_res, "user", None)
+    user_id = getattr(user, "id", None)
+
+    if not user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return user
+
 @app.post("/resume/upload")
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...), current_user = Depends(get_current_user)):
+    user_id = current_user.id
 
     # validating
     if file.content_type != "application/pdf":
@@ -74,13 +113,12 @@ async def upload_resume(file: UploadFile = File(...)):
     # Deactivate old resumes
     supabase.table("resumes") \
         .update({"is_active": False}) \
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+        .eq("user_id", user_id) \
         .execute()
 
     # Insert new resume
     insert_res = supabase.table("resumes").insert({
-        # "user_id": current_user.id,
-        "user_id": "4f81add4-3bf6-45d3-911a-2082d2b5ef51",
+        "user_id": user_id,
         "file_name": file.filename,
         "file_size": len(file_bytes),
         "file_path": "file_path",
@@ -123,12 +161,13 @@ async def upload_resume(file: UploadFile = File(...)):
     
 
 @app.get("/resume")
-async def get_uploaded_resume():
+async def get_uploaded_resume(current_user = Depends(get_current_user)):
+    user_id = current_user.id
     try:
         resume_res = (
             supabase.table("resumes")
             .select("id, file_name, file_size, is_active, created_at")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", user_id)
             .order("created_at", desc=True)
             .execute()
     )
@@ -137,13 +176,14 @@ async def get_uploaded_resume():
         raise HTTPException(status_code=500, detail=f"Failed to load resumes: {str(e)}")
 
 @app.patch("/resume/{id}/active")
-async def update_active_resume(id: str):
+async def update_active_resume(id: str, current_user = Depends(get_current_user)):
+    user_id = current_user.id
     try:
         # find the target resume for this user
         resume_res = (
             supabase.table("resumes")
             .select("id")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", user_id)
             .eq("id", id)
             .execute()
         )
@@ -155,13 +195,13 @@ async def update_active_resume(id: str):
         # deactivate all resumes for this user
         supabase.table("resumes") \
             .update({"is_active": False}) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", user_id) \
             .execute()
 
         # activate the selected resume
         supabase.table("resumes") \
             .update({"is_active": True}) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", user_id) \
             .eq("id", id) \
             .execute()
 
@@ -178,13 +218,14 @@ async def update_active_resume(id: str):
     
 
 @app.delete("/resume/{id}")
-async def delete_resume(id: str):
+async def delete_resume(id: str, current_user = Depends(get_current_user)):
+    user_id = current_user.id
     try:
         # ensure resume exists and belongs to this user
         resume_res = (
             supabase.table("resumes")
             .select("id, is_active")
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+            .eq("user_id", user_id)
             .eq("id", id)
             .execute()
         )
@@ -203,7 +244,7 @@ async def delete_resume(id: str):
         supabase.table("resumes") \
             .delete() \
             .eq("id", id) \
-            .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+            .eq("user_id", user_id) \
             .execute()
 
         # 4) optional: if deleted resume was active, promote another one
@@ -212,7 +253,7 @@ async def delete_resume(id: str):
             next_resume = (
                 supabase.table("resumes")
                 .select("id")
-                .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+                .eq("user_id", user_id)
                 .order("created_at", desc=True)
                 .limit(1)
                 .execute()
@@ -222,7 +263,7 @@ async def delete_resume(id: str):
                 supabase.table("resumes") \
                     .update({"is_active": True}) \
                     .eq("id", next_resume.data[0]["id"]) \
-                    .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51") \
+                    .eq("user_id", user_id) \
                     .execute()
 
         return {"message": "Resume deleted", "deleted_resume_id": id}
@@ -233,11 +274,12 @@ async def delete_resume(id: str):
         raise HTTPException(status_code=500, detail=f"Failed to delete resume: {str(e)}")
 
 @app.get("/resume/active/skills")
-async def get_active_resume_skills():
+async def get_active_resume_skills(current_user = Depends(get_current_user)):
+    user_id = current_user.id
     resume_res = (
         supabase.table("resumes")
         .select("id")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("user_id", user_id)
         .eq("is_active", True)
         .single()
         .execute()
@@ -272,13 +314,14 @@ async def get_active_resume_skills():
     return {"skills": skills}  
 
 @app.post("/jobs/search")
-def search_job(data: JobSearchQuery):
+def search_job(data: JobSearchQuery, current_user = Depends(get_current_user)):
+    user_id = current_user.id
 
 # Get the active resume for the job match %
     resume_res = (
         supabase.table("resumes")
         .select("*")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("user_id", user_id)
         .eq("is_active", True)
         .limit(1)
         .execute()
@@ -621,12 +664,13 @@ def parse_embedding(embedding):
     raise ValueError("Invalid embedding format")
 
 @app.get("/embed/test")
-def get_embed():
+def get_embed(current_user = Depends(get_current_user)):
+    user_id = current_user.id
 
     resume_res = (
         supabase.table("resumes")
         .select("*")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("user_id", user_id)
         .eq("is_active", True)
         .limit(1)
         .execute()
