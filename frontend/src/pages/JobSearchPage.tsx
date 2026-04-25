@@ -31,7 +31,7 @@ const JobSearchPage = () => {
   const [selectedState, setSelectedState] = useState<string>("");
   const [cities, setCities] = useState<ICity[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>("");
-//
+///
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateCode = e.target.value;
     setSelectedState(stateCode);
@@ -120,7 +120,7 @@ const JobSearchPage = () => {
     };
 
     const getMatchScore = (job: (typeof jobs)[number]): number => {
-      const value = (job as { matchScore?: number; score?: number }).matchScore ?? (job as { score?: number }).score;
+      const value = job.match?.match_percentage;
       return typeof value === "number" ? value : 0;
     };
 
@@ -797,6 +797,7 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
               jobPostedDate={job.datePosted}
               description={job.description}
               applyUrl={job.applyUrl}
+              matchPercentage={job.match?.match_percentage}
               onSelect={(id) => setSelectedJobId(id)}
               onSave={() => handleSaveJob(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}

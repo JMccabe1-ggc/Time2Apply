@@ -110,6 +110,53 @@ export function JobDetailPanel({
 
           <Separator/>
 
+          <div className="rounded-xl border border-border/70 bg-muted/20 p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-foreground">Skill Match</h4>
+              <span className="text-xs text-muted-foreground">
+                {job.match?.match_percentage != null
+                  ? `${job.match.match_percentage.toFixed(1)}% overall match`
+                  : "No match score yet"}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-emerald-700">Skills you have</p>
+              {job.match?.matched_skills.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {job.match.matched_skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No matched skills identified.</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-amber-700">Skills you are missing</p>
+              {job.match?.missing_skills.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {job.match.missing_skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No missing skills listed.</p>
+              )}
+            </div>
+          </div>
+
           {/* Job Description */}
           <div>
             <h4 className="font-semibold text-foreground mb-3 pt-4 pl-2">
@@ -119,7 +166,10 @@ export function JobDetailPanel({
               {job.description || "No description provided."}
             </p>
           </div>
+          
           </ScrollArea>
+
+          
 
           {/* Fixed Actions */}
           <div className="sticky bottom-0 border-t border-border bg-card p-4">

@@ -7,6 +7,12 @@ export interface Pay {
     period: PayPeriod;
 }
 
+export interface MatchData {
+    match_percentage: number;
+    matched_skills: string[];
+    missing_skills: string[];
+}
+
 export interface Job {
     id: number;
     title: string;
@@ -21,6 +27,7 @@ export interface Job {
     applyUrl: string;
     description: string;
     publisher: string;
+    match?: MatchData;
 }
 
 export interface SearchParams {
