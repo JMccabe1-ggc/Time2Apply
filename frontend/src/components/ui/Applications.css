@@ -1,7 +1,7 @@
 .applications-page {
     min-height: 100vh;
-    background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
-    color: #0f172a;
+    background: var(--app-bg);
+    color: var(--app-text);
 }
 
 .applications-content {
@@ -30,9 +30,9 @@
 }
 
 .applications-card {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -67,9 +67,9 @@
 }
 
 .applications-rate {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
     padding: 16px 18px;
     display: flex;
     align-items: center;
@@ -112,9 +112,9 @@
 }
 
 .applications-table-wrapper {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
     overflow: hidden;
     box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.35);
 }
@@ -125,7 +125,7 @@
 }
 
 .applications-table thead {
-    background: #f8fafc;
+    background: var(--app-surface-soft);
 }
 
 .applications-table thead th {

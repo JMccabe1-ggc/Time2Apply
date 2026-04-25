@@ -13,6 +13,7 @@ import SignupPage from './pages/SignupPage.tsx'
 import Newpassword from './pages/Newpassword.tsx'
 import Location from './pages/Location.tsx'
 import ChangePassword from './pages/ChangePassword.tsx'
+import AuthGuard from './components/Auth.tsx'
 //import ProfileTab from 'userLoggedIn/tabs/ProfileTab.tsx'
 //import PreferenceTab from 'userLoggedIn/tabs/PreferenceTab.tsx'
 //import AccountTab from 'userLoggedIn/tabs/AccountTab.tsx'
@@ -25,10 +26,12 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgotpassword" element={<Forgotpassword />} />
-      <Route path="/user" element={<JobSearchPage />} />
-      <Route path="/applications" element={<Applications />} />
-      <Route path="/resume" element={<Resume />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route element={<AuthGuard />}>
+        <Route path="/user" element={<JobSearchPage />} />
+        <Route path="/applications" element={<Applications />} />
+        <Route path="/resume" element={<Resume />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
       <Route path="/newpassword" element={<Newpassword />} />
       <Route path="/location" element={<Location />} />
       <Route path="/changepassword" element={<ChangePassword />} />
