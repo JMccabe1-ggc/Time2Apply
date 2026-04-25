@@ -31,7 +31,7 @@ const JobSearchPage = () => {
   const [selectedState, setSelectedState] = useState<string>("");
   const [cities, setCities] = useState<ICity[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>("");
-//
+///
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateCode = e.target.value;
     setSelectedState(stateCode);
