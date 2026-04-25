@@ -25,18 +25,19 @@ export const useJobs = () => {
     const [locationTerm, setLocationTerm] = useState("");
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-        const fetchJobs = async (title: string, location: string) => {
+    const fetchJobs = async (title: string, location: string) => {
         const safeTitle = title.trim() || "jobs";
         const safeLocation = location.trim();
 
         if (!safeLocation) {
             setJobs([]);
+            setError(null);
             return;
         }
 
         setLoading(true);
         setError(null);
-        try {//ERROR HERE ONLY IN CONSOLE
+        try {
             const authHeaders = await getAuthHeaders();
 
             const response = await fetch(`${API_BASE_URL}/jobs/search`, {
@@ -51,16 +52,16 @@ export const useJobs = () => {
             });
 
             if (!response.ok) {
-                const errText = await response.text()
-                throw new Error(`Failed to fetch jobs: ${response.status}` + errText);
+                const errText = await response.text();
+                throw new Error(`Failed to fetch jobs (${response.status}): ${errText}`);
             }
 
             const data = await response.json();
             setJobs(mapApiResponseToJobs(data.jobs));
-        } catch (err) {//ERROR HERE NEW CITY ALWAYS CATCHES ISSUES
+        } catch (err) {
             const message = err instanceof Error ? err.message : "Unknown error";
-            setError("zzzzError fetching jobs: " + message);
-            console.error("Error fetching jobs:aaaaa", err);
+            setError(`Error fetching jobs: ${message}`);
+            console.error("Error fetching jobs:", err);
         } finally {
             setLoading(false);
         }

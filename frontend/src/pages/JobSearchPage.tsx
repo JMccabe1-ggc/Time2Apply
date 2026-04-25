@@ -95,6 +95,7 @@ const JobSearchPage = () => {
   const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
   const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const filteredJobs = applyFilters(jobs);
+  const hasSearched = locationTerm.trim().length > 0;
 
   const sortedJobs = useMemo(() => {
     const getAnnualSalary = (job: (typeof jobs)[number]): number | null => {
@@ -752,14 +753,35 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
         </Card>
 
         <main className="user-main">
-          {error && <p className="error-message">Error: {error}</p>}
           <div className="return-count flex items-center justify-start gap-1">
             <Briefcase className="h-4 w-4 mr-1 shrink-0" />
-            <span className="leading-none">{filteredJobs.length}</span> <span className="leading-none">jobs found</span>
+            <span className="leading-none">{sortedJobs.length}</span> <span className="leading-none">jobs found</span>
           </div>
-          {loading && <p>Loading jobs...</p>}
-          {!loading && filteredJobs.length === 0}
-          {sortedJobs.map((job) => (
+          {loading && (
+            <div className="search-feedback search-feedback--loading" role="status">
+              Searching jobs based on your filters...
+            </div>
+          )}
+
+          {!loading && error && (
+            <div className="search-feedback search-feedback--error" role="alert">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && !hasSearched && (
+            <div className="search-feedback search-feedback--info" role="status">
+              Select a state or city, then hit Search to start discovering roles.
+            </div>
+          )}
+
+          {!loading && !error && hasSearched && sortedJobs.length === 0 && (
+            <div className="search-feedback search-feedback--empty" role="status">
+              No jobs matched your current filters. Try broadening salary, job type, or location.
+            </div>
+          )}
+
+          {!loading && !error && sortedJobs.map((job) => (
             <Jobcard
               key={job.id}
               id={job.id}
@@ -782,31 +804,33 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
           ))}
         </main>
 
-        <div className="user-details">
-          <JobDetailPanel
-            job={selectedJob}
-            onClose={() => setSelectedJobId(null)}
-            onSave={(id) => {
-              const current = sortedJobs.find((j) => j.id === id);
-              if (current) handleSaveJob(current);
-            }}
-            saved={
-              selectedJob
-                ? savedJobIds.includes(String(selectedJob.applyUrl))
-                : false
-            }
-            applied = {
-              selectedJob 
-                ? appliedJobIds.includes(String(selectedJob.applyUrl)) 
-                : false
-            }
-            onAppliedChange={(nextApplied) => {
-              if(selectedJob) {
-                handleMarkApplied(selectedJob, nextApplied);
+        {!loading && (
+          <div className="user-details">
+            <JobDetailPanel
+              job={selectedJob}
+              onClose={() => setSelectedJobId(null)}
+              onSave={(id) => {
+                const current = sortedJobs.find((j) => j.id === id);
+                if (current) handleSaveJob(current);
+              }}
+              saved={
+                selectedJob
+                  ? savedJobIds.includes(String(selectedJob.applyUrl))
+                  : false
               }
-            }}
-          />
-        </div>
+              applied = {
+                selectedJob 
+                  ? appliedJobIds.includes(String(selectedJob.applyUrl)) 
+                  : false
+              }
+              onAppliedChange={(nextApplied) => {
+                if(selectedJob) {
+                  handleMarkApplied(selectedJob, nextApplied);
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

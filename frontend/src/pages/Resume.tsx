@@ -54,6 +54,9 @@ type ResumeRow = {
 const Resume = () => {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle");
+  const [uploadMessage, setUploadMessage] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
   const [resumesLoading, setResumesLoading] = useState(false);
   const [resumes, setResumes] = useState<ResumeRow[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -68,11 +71,11 @@ const Resume = () => {
     licenses: "",
     references: "",
   });
-
-  useEffect(() => {
     const loadSkills = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/resume/active/skills`);
+        const response = await fetch(`${API_BASE_URL}/resume/active/skills`, {
+          headers: await getAuthHeaders(),
+        });
         const result = await response.json();
 
         console.log("loaded skills:", result);
@@ -90,13 +93,28 @@ const Resume = () => {
       }
     };
 
+  useEffect(() => {
     loadSkills();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setResumeFile(e.target.files[0]);
+      setUploadStatus("idle");
+      setUploadMessage("");
     }
+  };
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(false);
+
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (!droppedFile) return;
+
+    setResumeFile(droppedFile);
+    setUploadStatus("idle");
+    setUploadMessage("");
   };
 
   const handleChange = (
@@ -111,7 +129,8 @@ const Resume = () => {
 
   const handleParseResume = async () => {
     if (!resumeFile) {
-      alert("Please upload a resume first.");
+      setUploadStatus("error");
+      setUploadMessage("Please upload a resume first.");
       return;
     }
 
@@ -120,6 +139,8 @@ const Resume = () => {
 
     try {
       setLoading(true);
+      setUploadStatus("idle");
+      setUploadMessage("");
 
       const response = await fetch(`${API_BASE_URL}/resume/upload`, {
         method: "POST",
@@ -135,17 +156,28 @@ const Resume = () => {
       if (!response.ok) {
         throw new Error(result.detail || "Failed to parse resume");
       }
+
+      const parsedSkills = Array.isArray(result.skills_extracted)
+        ? result.skills_extracted
+        : typeof result.skills_extracted === "string"
+          ? [result.skills_extracted]
+          : [];
+
       setFormData((prev) => ({
         ...prev,
-        skills: Array.isArray(result.skills_extracted)
-          ? result.skills_extracted.join(", ")
-          : typeof result.skills_extracted === "string"
-            ? result.skills_extracted
-            : "",
+        skills: parsedSkills.join(", "),
       }));
+
+      setUploadStatus("success");
+      setUploadMessage(
+        parsedSkills.length > 0
+          ? `Resume parsed successfully. Extracted ${parsedSkills.length} skill${parsedSkills.length === 1 ? "" : "s"}.`
+          : "Resume parsed successfully, but no skills were detected.",
+      );
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Could not parse resume.");
+      setUploadStatus("error");
+      setUploadMessage(error.message || "Could not parse resume.");
     } finally {
       setLoading(false);
     }
@@ -176,6 +208,8 @@ const Resume = () => {
       if(!response.ok) {
         throw new Error("Failed to update active resume")
       }
+
+      await loadSkills();
       
     } catch(error) {
       setResumes(previousResumes);
@@ -274,20 +308,52 @@ const handleDeleteResume = async (targetResumeId: string) => {
                     <CardHeader>
                       <CardTitle>Resume File</CardTitle>
                     </CardHeader>
-                    <input
-                      id="resumeFile"
-                      type="file"
-                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      onChange={handleFileChange}
-                    />
+                    <div
+                      className={`resume-dropzone ${isDragActive ? "is-active" : ""}`}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragActive(true);
+                      }}
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        setIsDragActive(true);
+                      }}
+                      onDragLeave={() => setIsDragActive(false)}
+                      onDrop={handleFileDrop}
+                    >
+                      <p className="resume-dropzone-title">Drag and drop your resume here</p>
+                      <p className="resume-dropzone-subtitle">or choose a file manually</p>
+                      <input
+                        id="resumeFile"
+                        type="file"
+                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={handleFileChange}
+                      />
+                    </div>
+
+                    {resumeFile && (
+                      <div className="resume-file-badge" role="status">
+                        Selected: {resumeFile.name}
+                      </div>
+                    )}
+
                     <button
                       className="resume-button"
                       type="button"
                       onClick={handleParseResume}
                       disabled={loading}
                     >
-                      {loading ? "Parsing..." : "Parse resume"}
+                      {loading ? "Parsing resume..." : "Parse resume"}
                     </button>
+
+                    {uploadStatus !== "idle" && (
+                      <div
+                        className={`resume-feedback ${uploadStatus === "success" ? "resume-feedback--success" : "resume-feedback--error"}`}
+                        role="status"
+                      >
+                        {uploadMessage}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </div>
@@ -359,6 +425,11 @@ const handleDeleteResume = async (targetResumeId: string) => {
                         value={formData.skills}
                         onChange={handleChange}
                       ></textarea>
+                      {!formData.skills && (
+                        <p className="resume-field-helper">
+                          No skills extracted yet from your active resume.
+                        </p>
+                      )}
                     </div>
                     <div className="resume-field resume-field--full">
                       <label htmlFor="licenses">Licenses / Certification</label>
@@ -418,15 +489,27 @@ const handleDeleteResume = async (targetResumeId: string) => {
                       </TableHeader>
                       <TableBody>
                         {resumesLoading ? (
-                          <TableRow>
-                            <TableCell colSpan={3}>
-                              Loading resumes...
-                            </TableCell>
-                          </TableRow>
+                          <>
+                            <TableRow>
+                              <TableCell colSpan={3}>
+                                <div className="resume-skeleton" />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell colSpan={3}>
+                                <div className="resume-skeleton" />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell colSpan={3}>
+                                <div className="resume-skeleton" />
+                              </TableCell>
+                            </TableRow>
+                          </>
                         ) : resumes.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={3}>
-                              No resumes uploaded yet
+                            <TableCell colSpan={3} className="resume-empty-state">
+                              No resumes yet. Upload your first resume to get started.
                             </TableCell>
                           </TableRow>
                         ) : (

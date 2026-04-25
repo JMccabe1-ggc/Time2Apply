@@ -108,9 +108,12 @@ async def upload_resume(
             supabase.table("skills")
             .select("id")
             .eq("skill_name", skill)
-            .single()
+            .maybe_single()
             .execute()
         )
+
+        if not skill_row.data:
+            continue
 
         skill_id = skill_row.data["id"]
 
@@ -254,7 +257,7 @@ async def get_active_resume_skills(
         .select("id")
         .eq("user_id", current_user.id)
         .eq("is_active", True)
-        .single()
+        .maybe_single()
         .execute()
     )
 
@@ -601,18 +604,21 @@ def parse_embedding(embedding):
     raise ValueError("Invalid embedding format")
 
 @app.get("/embed/test")
-def get_embed():
+def get_embed(current_user: CurrentUser = Depends(get_current_user)):
 
     resume_res = (
         supabase.table("resumes")
         .select("*")
-        .eq("user_id", "4f81add4-3bf6-45d3-911a-2082d2b5ef51")
+        .eq("user_id", current_user.id)
         .eq("is_active", True)
         .limit(1)
         .execute()
     )
 
-    active_resume = resume_res.data[0] if resume_res.data else None
+    if not resume_res.data:
+        raise HTTPException(status_code=404, detail="No active resume found")
+
+    active_resume = resume_res.data[0]
     test_resume_embedding = active_resume["embedding"]
     return {
         "embedding": test_resume_embedding

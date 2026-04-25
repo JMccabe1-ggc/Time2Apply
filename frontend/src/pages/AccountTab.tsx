@@ -71,7 +71,9 @@ const AccountTab = () => {
     const handleSignOutEverywhere = async () => {
         await supabase.auth.signOut({ scope: "global" });
         setStatusMessage("Signed out from all other devices.");
-         navigate("/login");
+         navigate("/login", {replace: true});
+         const {data} = await supabase.auth.getSession();
+         console.log("session after logout", data.session);
     };
 
     return (

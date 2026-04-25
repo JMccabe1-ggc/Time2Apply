@@ -1,12 +1,16 @@
 
 import { useNavigate } from "react-router-dom";
 import "./ui/Header.css";
+import supabase from "@/lib/supabase";
 
 const Header = () => {
     const navigate = useNavigate();
 
-    const back2home = () =>{
-        navigate("/");
+    const handleSignOutEverywhere = async () => {
+        await supabase.auth.signOut({ scope: "global" });
+         navigate("/login", {replace: true});
+         const {data} = await supabase.auth.getSession();
+         console.log("session after logout", data.session);
     };
 
     const goToSearch = () => {
@@ -37,7 +41,7 @@ const Header = () => {
                     <li><button onClick={goToProfile}>Profile</button></li>
                 </ul>
             </nav>
-            <button className="user-header__signout" onClick={back2home}>Sign Out</button>
+            <button className="user-header__signout" onClick={handleSignOutEverywhere}>Sign Out</button>
         </header>
         </div>
     );
