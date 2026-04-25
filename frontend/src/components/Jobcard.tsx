@@ -29,6 +29,7 @@ type JobcardProps = {
     jobPostedDate: string;
     description?: string;
     applyUrl?: string;
+    matchPercentage?: number;
     onSelect?: (id: number) => void;
         onSave: () => void;
         isSaved: boolean;
@@ -48,6 +49,7 @@ const Jobcard = ({
     applied,
     jobPostedDate,
     applyUrl,
+    matchPercentage,
     onSelect,
     onSave,
     isSaved,
@@ -62,6 +64,12 @@ const Jobcard = ({
     const formattedDate = jobPostedDate
         ? new Date(jobPostedDate).toLocaleDateString()
         : "Date unknown";
+    
+    const matchScoreColor = matchPercentage !== undefined 
+        ? matchPercentage >= 75 ? "bg-green-100 text-green-900" 
+        : matchPercentage >= 50 ? "bg-yellow-100 text-yellow-900"
+        : "bg-red-100 text-red-900"
+        : "";
 
     const goToPosting = () => {
         if (applyUrl) {
@@ -100,6 +108,11 @@ const Jobcard = ({
           <span className="jobcard-badge jobcard-badge--muted">
             {applicationTypes}
           </span>
+          {matchPercentage !== undefined && (
+            <Badge className={`px-3 py-1 text-sm ${matchScoreColor}`}>
+              {matchPercentage.toFixed(1)}% Match
+            </Badge>
+          )}
         </div>
 
         <div className="jobcard-meta">

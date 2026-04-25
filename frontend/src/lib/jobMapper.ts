@@ -44,6 +44,11 @@ export const mapApiResponseToJobs = (apiJobs: any[]): Job[] => {
         datePosted: job.posted_date || "",
         applyUrl: job.apply_url || "",
         description: job.description || "",
-        publisher: job.publisher || "Unknown Publisher"
+        publisher: job.publisher || "Unknown Publisher",
+        match: job.match ? {
+            match_percentage: job.match.match_percentage || 0,
+            matched_skills: job.match.matched_skills || [],
+            missing_skills: job.match.missing_skills || []
+        } : undefined
     }));
 };
