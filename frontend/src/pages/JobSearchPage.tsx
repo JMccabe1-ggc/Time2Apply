@@ -798,6 +798,7 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
               description={job.description}
               applyUrl={job.applyUrl}
               matchPercentage={job.match?.match_percentage}
+              ghostRiskLevel={job.ghostRiskLevel}
               onSelect={(id) => setSelectedJobId(id)}
               onSave={() => handleSaveJob(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}

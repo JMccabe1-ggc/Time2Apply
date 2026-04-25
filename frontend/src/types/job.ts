@@ -13,6 +13,8 @@ export interface MatchData {
     missing_skills: string[];
 }
 
+export type GhostRiskLevel = "low" | "moderate" | "high" | "very_high";
+
 export interface Job {
     id: number;
     title: string;
@@ -28,6 +30,9 @@ export interface Job {
     description: string;
     publisher: string;
     match?: MatchData;
+    ghostRiskScore?: number;
+    ghostRiskLevel?: GhostRiskLevel;
+    ghostFlags?: string[];
 }
 
 export interface SearchParams {
