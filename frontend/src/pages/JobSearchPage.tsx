@@ -193,7 +193,7 @@ if (data) {
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("user_id, email, location")
+          .select("user_id, email, location, city, state")
           .eq("user_id", user.id)
           .maybeSingle();
 
@@ -201,11 +201,28 @@ if (data) {
         console.log("PROFILE DATA:", profileData);
         console.log("PROFILE ERROR:", profileError);
 
-        if (profileError) {
-          console.error("Error loading location:", profileError.message);
-        } else if (profileData?.location) {
-          setLocationTerm(profileData.location);
-        }
+       if (profileError) {
+  console.error("Error loading location:", profileError.message);
+} else {
+  if (profileData?.state) {
+    const matchedState = states.find((state) => state.name === profileData.state);
+
+    if (matchedState) {
+      setSelectedState(matchedState.isoCode);
+
+      const stateCities = City.getCitiesOfState("US", matchedState.isoCode);
+      setCities(stateCities);
+    }
+  }
+
+  if (profileData?.city) {
+    setSelectedCity(profileData.city);
+  }
+
+  if (profileData?.location) {
+    setLocationTerm(profileData.location);
+  }
+}
 
         const { data, error } = await supabase
           .from("saved_jobs")
