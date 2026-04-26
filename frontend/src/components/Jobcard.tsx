@@ -8,8 +8,11 @@ import {
   DollarSign,
   ExternalLink,
   BadgeCheck,
+  Bookmark,
 } from "lucide-react";
 import type { GhostRiskLevel } from "../types/job.ts";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils.ts";
 
 type JobcardProps = {
     id: number;
@@ -154,13 +157,19 @@ const Jobcard = ({
         </div>
 
         <div className="jobcard-footer">
-          <button
-            className="jobcard-action jobcard-action--ghost"
-            type="button"
-            onClick={onSave}
+          <Button
+            variant="outline"
+            className={cn("jobcard-action jobcard-action--ghost",
+              isSaved && "jobcard-action--saved"
+            )}
+            // type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSave();
+            }}
           >
             {isSaved ? "Saved" : "Save"}
-          </button>
+          </Button>
           <button
             className="jobcard-action flex gap-1"
             type="button"

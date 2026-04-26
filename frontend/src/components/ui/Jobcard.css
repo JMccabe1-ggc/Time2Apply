@@ -145,6 +145,12 @@
     box-shadow: none;
 }
 
+.jobcard-action--saved {
+    background: oklch(59.6% 0.145 163.225);
+    color: white;
+    border-color: #059669;
+}
+
 .apply-popup {
     position: fixed;
     inset: 0;
