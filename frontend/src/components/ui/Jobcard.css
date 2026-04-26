@@ -214,7 +214,17 @@
     }
 
     .jobcard-footer {
-        flex-direction: column;
-        align-items: flex-start;
+        grid-template-columns: 1fr 1fr;
+        display: grid;
+        align-items: stretch;
+    }
+
+    .jobcard-action {
+        width: 100%;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
     }
 }

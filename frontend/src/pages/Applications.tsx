@@ -188,70 +188,115 @@ const Applications = () => {
           <p>Track and manage your job applications</p>
         </div>
 
-        <div className="applications-table-wrapper">
-          <table className="applications-table">
-            <thead>
-              <tr>
-                <th>Job Title</th>
-                <th>Company</th>
-                <th>Date Applied</th>
-                <th>Status</th>
-                <th>Apply Link</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5}>Loading...</td>
-                </tr>
-              ) : applications.length === 0 ? (
-                <tr>
-                  <td colSpan={5}>No applications yet.</td>
-                </tr>
-              ) : (
-                applications.map((app) => (
-                  <tr key={app.id}>
-                    <td>{app.jobTitle}</td>
-                    <td>{app.company}</td>
-                    <td>
-                      {new Date(app.dateApplied).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <select
-                        className="applications-status-select"
-                        value={app.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            app.id,
-                            e.target.value as ApplicationStatus
-                          )
-                        }
-                      >
-                        <option value="applied">Applied</option>
-                        <option value="interviewing">Interviewing</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="no-response">No Response</option>
-                      </select>
-                    </td>
-                    <td>
-                      <a
-                        href={app.applyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <button className="applications-status-select">
-                          Apply
-                        </button>
-                      </a>
-                    </td>
+        {loading ? (
+          <div className="applications-loading">Loading applications...</div>
+        ) : applications.length === 0 ? (
+          <div className="applications-empty">No applications yet.</div>
+        ) : (
+          <>
+            {/* Table view - hidden on mobile */}
+            <div className="applications-table-wrapper applications-table-view">
+              <table className="applications-table">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Date Applied</th>
+                    <th>Status</th>
+                    <th>Apply Link</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {applications.map((app) => (
+                    <tr key={app.id}>
+                      <td>{app.jobTitle}</td>
+                      <td>{app.company}</td>
+                      <td>
+                        {new Date(app.dateApplied).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <select
+                          className="applications-status-select"
+                          value={app.status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              app.id,
+                              e.target.value as ApplicationStatus
+                            )
+                          }
+                        >
+                          <option value="applied">Applied</option>
+                          <option value="interviewing">Interviewing</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="accepted">Accepted</option>
+                          <option value="no-response">No Response</option>
+                        </select>
+                      </td>
+                      <td>
+                        <a
+                          href={app.applyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="applications-link-btn">
+                            Apply
+                          </button>
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Card view - shown on mobile */}
+            <div className="applications-card-view">
+              {applications.map((app) => (
+                <div key={app.id} className="application-card">
+                  <div className="application-card__header">
+                    <div>
+                      <h3 className="application-card__title">{app.jobTitle}</h3>
+                      <p className="application-card__company">{app.company}</p>
+                    </div>
+                    <div className="application-card__date">
+                      {new Date(app.dateApplied).toLocaleDateString()}
+                    </div>
+                  </div>
+
+                  <div className="application-card__controls">
+                    <select
+                      className="application-card__status"
+                      value={app.status}
+                      onChange={(e) =>
+                        handleStatusChange(
+                          app.id,
+                          e.target.value as ApplicationStatus
+                        )
+                      }
+                    >
+                      <option value="applied">Applied</option>
+                      <option value="interviewing">Interviewing</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="accepted">Accepted</option>
+                      <option value="no-response">No Response</option>
+                    </select>
+
+                    <a
+                      href={app.applyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="application-card__link"
+                    >
+                      <button className="application-card__apply-btn">
+                        Apply
+                      </button>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

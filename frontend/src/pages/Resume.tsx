@@ -295,8 +295,8 @@ const handleDeleteResume = async (targetResumeId: string) => {
 
         <Tabs defaultValue="upload-tab" className="resume-tabs">
           <TabsList className="resume-tabs-list inset-shadow-sm bg-zinc-200">
-            <TabsTrigger value="upload-tab">Upload</TabsTrigger>
-            <TabsTrigger value="resumes-tab">Resumes</TabsTrigger>
+            <TabsTrigger className="resume-tab-trigger" value="upload-tab">Upload</TabsTrigger>
+            <TabsTrigger className="resume-tab-trigger" value="resumes-tab">Resumes</TabsTrigger>
           </TabsList>
 
           {/* Upload tab */}
@@ -467,9 +467,9 @@ const handleDeleteResume = async (targetResumeId: string) => {
 
           {/* Resumes tab*/}
           <TabsContent value="resumes-tab" className="space-y-6">
-            <Card>
+            <Card className="resume-card">
               <div>
-                <CardContent>
+                <CardContent className="resume-card-content">
                   <div>
                     <CardHeader>
                       <CardTitle>Stored Resumes</CardTitle>
@@ -478,91 +478,139 @@ const handleDeleteResume = async (targetResumeId: string) => {
                       </CardDescription>
                     </CardHeader>
 
-                    <Table>
-                      <TableCaption>Documents Uploaded</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Resume</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {resumesLoading ? (
-                          <>
-                            <TableRow>
-                              <TableCell colSpan={3}>
-                                <div className="resume-skeleton" />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell colSpan={3}>
-                                <div className="resume-skeleton" />
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell colSpan={3}>
-                                <div className="resume-skeleton" />
-                              </TableCell>
-                            </TableRow>
-                          </>
-                        ) : resumes.length === 0 ? (
+                    <div className="resume-table-desktop">
+                      <Table>
+                        <TableCaption>Documents Uploaded</TableCaption>
+                        <TableHeader>
                           <TableRow>
-                            <TableCell colSpan={3} className="resume-empty-state">
-                              No resumes yet. Upload your first resume to get started.
-                            </TableCell>
+                            <TableHead>Resume</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Actions</TableHead>
                           </TableRow>
-                        ) : (
-                          resumes.map((resume) => {
-                            const switchId = "toggle-resume" + resume.id;
-                            return (
-                              <TableRow key={resume.id}>
-                                <TableCell>{resume.file_name}</TableCell>
-                                <TableCell>
-                                  <Switch
-                                    checked={resume.is_active}
-                                    onCheckedChange={(checked) =>
-                                      handleResumeActiveChange(
-                                        resume.id,
-                                        checked,
-                                      )
-                                    }
-                                    id={switchId}
-                                  />
-                                </TableCell>
-                                <TableCell>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant={"ghost"}
-                                        size="icon"
-                                        className="size-8"
-                                      >
-                                        <MoreHorizontalIcon />
-                                        <span className="sr-only">
-                                          Open menu
-                                        </span>
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        variant="destructive"
-                                        onSelect={(e) => {
-                                          e.preventDefault();
-                                          openDeleteDialog(resume.id);
-                                        }}
-                                      >
-                                        Delete
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+                        </TableHeader>
+                        <TableBody>
+                          {resumesLoading ? (
+                            <>
+                              <TableRow>
+                                <TableCell colSpan={3}>
+                                  <div className="resume-skeleton" />
                                 </TableCell>
                               </TableRow>
-                            );
-                          })
-                        )}
-                      </TableBody>
-                    </Table>
+                              <TableRow>
+                                <TableCell colSpan={3}>
+                                  <div className="resume-skeleton" />
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell colSpan={3}>
+                                  <div className="resume-skeleton" />
+                                </TableCell>
+                              </TableRow>
+                            </>
+                          ) : resumes.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={3} className="resume-empty-state">
+                                No resumes yet. Upload your first resume to get started.
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            resumes.map((resume) => {
+                              const switchId = "toggle-resume" + resume.id;
+                              return (
+                                <TableRow key={resume.id}>
+                                  <TableCell>{resume.file_name}</TableCell>
+                                  <TableCell>
+                                    <Switch
+                                      className="resume-switch"
+                                      checked={resume.is_active}
+                                      onCheckedChange={(checked) =>
+                                        handleResumeActiveChange(
+                                          resume.id,
+                                          checked,
+                                        )
+                                      }
+                                      id={switchId}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant={"ghost"}
+                                          size="icon"
+                                          className="size-8"
+                                        >
+                                          <MoreHorizontalIcon />
+                                          <span className="sr-only">
+                                            Open menu
+                                          </span>
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                          variant="destructive"
+                                          onSelect={(e) => {
+                                            e.preventDefault();
+                                            openDeleteDialog(resume.id);
+                                          }}
+                                        >
+                                          Delete
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    <div className="resume-cards-mobile" aria-label="Stored resumes mobile view">
+                      {resumesLoading ? (
+                        <>
+                          <div className="resume-mobile-card"><div className="resume-skeleton" /></div>
+                          <div className="resume-mobile-card"><div className="resume-skeleton" /></div>
+                        </>
+                      ) : resumes.length === 0 ? (
+                        <div className="resume-empty-state">
+                          No resumes yet. Upload your first resume to get started.
+                        </div>
+                      ) : (
+                        resumes.map((resume) => {
+                          const switchId = "toggle-resume-mobile" + resume.id;
+                          return (
+                            <article className="resume-mobile-card" key={resume.id}>
+                              <div className="resume-mobile-card__row">
+                                <p className="resume-mobile-card__name">{resume.file_name}</p>
+                              </div>
+                              <div className="resume-mobile-card__row resume-mobile-card__controls">
+                                <label className="resume-mobile-card__status" htmlFor={switchId}>Active</label>
+                                <Switch
+                                  className="resume-switch"
+                                  checked={resume.is_active}
+                                  onCheckedChange={(checked) =>
+                                    handleResumeActiveChange(
+                                      resume.id,
+                                      checked,
+                                    )
+                                  }
+                                  id={switchId}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                className="resume-delete-btn"
+                                onClick={() => openDeleteDialog(resume.id)}
+                              >
+                                Delete
+                              </button>
+                            </article>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </div>

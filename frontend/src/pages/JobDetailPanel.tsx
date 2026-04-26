@@ -8,6 +8,7 @@ import {
   Bookmark,
   Building2,
   DollarSign,
+  X,
 } from "lucide-react";
 import type { Job } from "@/types/job";
 import { Separator } from "@/components/ui/separator";
@@ -25,6 +26,7 @@ interface JobDetailPanelProps {
 
 export function JobDetailPanel({
   job,
+  onClose,
   onSave,
   saved = false,
   applied = false,
@@ -45,15 +47,15 @@ export function JobDetailPanel({
     : "No ghost flags";
 
   return (
-    <div className="w-full lg:w-[520px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
+    <div className="job-detail-panel w-full lg:w-[520px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border rounded-xl bg-card p-4">
         <h2 className="font-semibold text-foreground">Job Details</h2>
-        {/* <Button variant="outline" size="icon" onClick={onClose}>
+        <Button variant="outline" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
-        </Button> */}
+        </Button>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-6">
         {/* Header */}
         <div>
           <div className="flex items-start gap-4">
@@ -97,8 +99,8 @@ export function JobDetailPanel({
 
           <Separator/>
 
-          <ScrollArea className="h-[calc(100vh-180px)]">
-          <div className="flex items-center gap-50 m-2">
+          <ScrollArea className="h-[calc(100vh-260px)] lg:h-[calc(100vh-180px)]">
+          <div className="job-detail-panel__applied-row">
             <h4>Have you applied?</h4>
             <ButtonGroup>
               <Button 
@@ -182,10 +184,10 @@ export function JobDetailPanel({
 
           {/* Fixed Actions */}
           <div className="sticky bottom-0 border-t border-border bg-card p-4">
-            <div className="flex gap-3">
+            <div className="job-detail-panel__actions">
               <Button
                 variant="outline"
-                className={cn("flex-1 bg-transparent hover:bg-emerald-600 hover:text-white", saved && "text-white bg-emerald-600")}
+                className={cn("job-detail-panel__action flex-1 bg-transparent hover:bg-emerald-600 hover:text-white", saved && "text-white bg-emerald-600")}
                 onClick={() => onSave?.(job.id)}
               >
                 <Bookmark
@@ -193,7 +195,7 @@ export function JobDetailPanel({
                 />
                 {saved ? "Saved" : "Save"}
               </Button>
-              <Button variant="outline"className="flex-1 text-white bg-blue-600 hover:bg-blue-700 hover:text-white" asChild>
+              <Button variant="outline" className="job-detail-panel__action flex-1 text-white bg-blue-600 hover:bg-blue-700 hover:text-white" asChild>
                 <a
                   href={job.applyUrl}
                   target="_blank"

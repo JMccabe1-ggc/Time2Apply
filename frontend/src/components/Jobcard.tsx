@@ -159,7 +159,7 @@ const Jobcard = ({
             type="button"
             onClick={onSave}
           >
-            {isSaved ? "Unsave" : "Save"}
+            {isSaved ? "Saved" : "Save"}
           </button>
           <button
             className="jobcard-action flex gap-1"
