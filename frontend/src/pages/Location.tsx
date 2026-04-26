@@ -46,6 +46,8 @@ const { data: savedRow, error: saveError } = await supabase
       user_id: user.id,
       email: user.email,
       location: fullLocation,
+      city: selectedCity,
+      state: stateName,
     },
     { onConflict: "user_id" }
   )
