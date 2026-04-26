@@ -836,6 +836,7 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
                 setSelectedJobId(id);
                 setDetailsOpen(true);
               }}
+              ghostRiskLevel={job.ghostRiskLevel}
               onSave={() => handleSaveJob(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}
             />

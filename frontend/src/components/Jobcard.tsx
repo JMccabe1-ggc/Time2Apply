@@ -9,6 +9,7 @@ import {
   ExternalLink,
   BadgeCheck,
 } from "lucide-react";
+import type { GhostRiskLevel } from "../types/job.ts";
 
 type JobcardProps = {
     id: number;
@@ -30,6 +31,7 @@ type JobcardProps = {
     description?: string;
     applyUrl?: string;
     matchPercentage?: number;
+    ghostRiskLevel?: GhostRiskLevel;
     onSelect?: (id: number) => void;
         onSave: () => void;
         isSaved: boolean;
@@ -50,6 +52,7 @@ const Jobcard = ({
     jobPostedDate,
     applyUrl,
     matchPercentage,
+    ghostRiskLevel,
     onSelect,
     onSave,
     isSaved,
@@ -70,6 +73,19 @@ const Jobcard = ({
         : matchPercentage >= 50 ? "bg-yellow-100 text-yellow-900"
         : "bg-red-100 text-red-900"
         : "";
+
+    const ghostRiskBadgeColor = ghostRiskLevel
+        ? ghostRiskLevel === "low" ? "bg-emerald-100 text-emerald-900"
+        : ghostRiskLevel === "moderate" ? "bg-amber-100 text-amber-900"
+        : ghostRiskLevel === "high" ? "bg-orange-100 text-orange-900"
+        : "bg-rose-100 text-rose-900"
+        : "";
+
+    const ghostRiskLabel = ghostRiskLevel
+      ? ghostRiskLevel === "very_high"
+        ? "Very High"
+        : ghostRiskLevel.charAt(0).toUpperCase() + ghostRiskLevel.slice(1)
+      : "";
 
     const goToPosting = () => {
         if (applyUrl) {
@@ -111,6 +127,11 @@ const Jobcard = ({
           {matchPercentage !== undefined && (
             <Badge className={`px-3 py-1 text-sm ${matchScoreColor}`}>
               {matchPercentage.toFixed(1)}% Match
+            </Badge>
+          )}
+          {ghostRiskLevel && (
+            <Badge className={`px-3 py-1 text-sm ${ghostRiskBadgeColor}`}>
+              Ghost Risk: {ghostRiskLabel}
             </Badge>
           )}
         </div>

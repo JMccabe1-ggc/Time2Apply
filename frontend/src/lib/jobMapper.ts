@@ -45,6 +45,9 @@ export const mapApiResponseToJobs = (apiJobs: any[]): Job[] => {
         applyUrl: job.apply_url || "",
         description: job.description || "",
         publisher: job.publisher || "Unknown Publisher",
+        ghostRiskScore: typeof job.ghost_risk_score === "number" ? job.ghost_risk_score : undefined,
+        ghostRiskLevel: typeof job.ghost_risk_level === "string" ? job.ghost_risk_level : undefined,
+        ghostFlags: Array.isArray(job.ghost_flags) ? job.ghost_flags : undefined,
         match: job.match ? {
             match_percentage: job.match.match_percentage || 0,
             matched_skills: job.match.matched_skills || [],
