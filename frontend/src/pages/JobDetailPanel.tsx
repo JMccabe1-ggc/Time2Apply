@@ -3,6 +3,7 @@ import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group"
 import {
   MapPin,
   Clock,
+  Ghost,
   ExternalLink,
   Bookmark,
   Building2,
@@ -38,6 +39,10 @@ export function JobDetailPanel({
   const formattedDate = job.datePosted
         ? new Date(job.datePosted).toLocaleDateString()
         : "Date unknown";  
+
+  const ghostFlagsText = job.ghostFlags?.length
+    ? job.ghostFlags.join(" • ")
+    : "No ghost flags";
 
   return (
     <div className="w-full lg:w-[520px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
@@ -83,6 +88,10 @@ export function JobDetailPanel({
             <div className="flex items-center gap-1.5 mb-2">
               <Clock className="h-4 w-4" />
               <span>{formattedDate}</span>
+            </div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Ghost className="h-4 w-4" />
+              <span>{ghostFlagsText}</span>
             </div>
           </div>
 
