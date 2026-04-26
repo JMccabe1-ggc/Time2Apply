@@ -167,6 +167,7 @@
     color: #1e293b;
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    min-height: 44px;
 }
 
 .applications-status-select:hover {
@@ -185,6 +186,161 @@
     color: #1e293b;
 }
 
+.applications-link-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #1e293b;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    min-height: 44px;
+}
+
+.applications-link-btn:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+
+.applications-link-btn:focus {
+    outline: none;
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+}
+
+/* Card view - hidden by default, shown on mobile */
+.applications-card-view {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.application-card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 12px 28px -22px rgba(15, 23, 42, 0.3);
+    animation: card-enter 0.3s ease-out;
+}
+
+.application-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.application-card__title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.4;
+}
+
+.application-card__company {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.application-card__date {
+    font-size: 12px;
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.application-card__controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.application-card__status {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #1e293b;
+    cursor: pointer;
+    min-height: 44px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.application-card__status:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+
+.application-card__status:focus {
+    outline: none;
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+}
+
+.application-card__link {
+    text-decoration: none;
+}
+
+.application-card__apply-btn {
+    width: 100%;
+    background: linear-gradient(145deg, #0f766e 0%, #0891b2 100%);
+    border: 1px solid #0f766e;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f8fafc;
+    cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 10px 20px -14px rgba(8, 145, 178, 0.5);
+}
+
+.application-card__apply-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+.application-card__apply-btn:active {
+    transform: translateY(0);
+}
+
+.applications-loading,
+.applications-empty {
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Table view styling */
+.applications-table-view {
+    display: block;
+}
+
+@keyframes card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 768px) {
     .applications-content {
         padding: 20px 16px 28px;
@@ -194,11 +350,33 @@
         padding: 0 16px 32px;
     }
 
-    .applications-table-wrapper {
-        overflow-x: auto;
+    .applications-table-view {
+        display: none;
     }
 
-    .applications-table {
-        min-width: 600px;
+    .applications-card-view {
+        display: flex;
+    }
+
+    .applications-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .applications-rates {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .applications-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .applications-title h1 {
+        font-size: 24px;
+    }
+
+    .applications-table-header h2 {
+        font-size: 20px;
     }
 }

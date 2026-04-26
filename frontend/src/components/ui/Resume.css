@@ -39,6 +39,12 @@
   padding: 0.25rem;
 }
 
+.resume-tab-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .resume-upload-layout {
   width: min(960px, 100%);
   margin: 0 auto;
@@ -330,6 +336,10 @@
   margin-top: 10px;
   cursor: pointer;
   transition: 0.2s ease;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .resume-button:hover {
@@ -356,6 +366,65 @@
   background: linear-gradient(90deg, #e5edf6 0%, #f2f7fc 50%, #e5edf6 100%);
   background-size: 200% 100%;
   animation: resume-skeleton-loading 1.2s ease-in-out infinite;
+}
+
+.resume-table-desktop {
+  display: block;
+}
+
+.resume-cards-mobile {
+  display: none;
+}
+
+.resume-mobile-card {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.resume-mobile-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.resume-mobile-card__name {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.resume-mobile-card__status {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.resume-mobile-card__controls {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.65rem;
+}
+
+.resume-delete-btn {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.resume-delete-btn:hover {
+  background: #fee2e2;
 }
 
 @keyframes resume-card-enter {
@@ -413,5 +482,30 @@
 @media (max-width: 640px) {
   .resume-grid {
     grid-template-columns: 1fr;
+  }
+
+  .resume-tab-trigger {
+    min-height: 14px;
+  }
+
+  .resume-switch {
+    min-width: 36px;
+    min-height: 20px;
+    width: 36px;
+    height: 20px;
+  }
+
+  .resume-switch [data-slot="switch-thumb"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .resume-table-desktop {
+    display: none;
+  }
+
+  .resume-cards-mobile {
+    display: grid;
+    gap: 0.75rem;
   }
 }

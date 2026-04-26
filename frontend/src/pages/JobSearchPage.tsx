@@ -23,6 +23,8 @@ import { Card } from "@/components/ui/card.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 
 const JobSearchPage = () => {
+  const [filtersOpen, setFiltersOpen] = useState<boolean>(false);
+  const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
   const [salarySort, setSalarySort] = useState<"default" | "salary-desc" | "salary-asc">("default");
   const [postedDateSort, setPostedDateSort] = useState<"default" | "date-desc" | "date-asc">("default");
   const [matchScoreSort, setMatchScoreSort] = useState<"default" | "score-desc" | "score-asc">("default");
@@ -246,6 +248,12 @@ useEffect(() => {
   fetchSavedJobs();
 }, [loading, filteredJobs, selectedJobId]);
 
+useEffect(() => {
+  if (!selectedJob) {
+    setDetailsOpen(false);
+  }
+}, [selectedJob]);
+
   const handleSaveJob = async (job: any) => {
     const { data: sessionData } = await supabase.auth.getSession();
     const user = sessionData?.session?.user;
@@ -410,11 +418,19 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
     <div className="user-page">
       <Header />
       <div className="user-layout">
-        <Card className="user-aside">
+        <Card className={`user-aside ${filtersOpen ? 'user-aside--open' : ''}`}>
           <div className="sidenav">
             <div className="filters-header">
-              <div>
+              <div className="filters-header__top">
                 <h2>Filters</h2>
+                <button
+                  className="filters-close-btn"
+                  onClick={() => setFiltersOpen(false)}
+                  aria-label="Close filters"
+                  type="button"
+                >
+                  ✕
+                </button>
               </div>
             </div>
             <ScrollArea className="filters-scroll">
@@ -752,10 +768,28 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
           </div>
         </Card>
 
+        {filtersOpen && (
+          <div
+            className="filters-overlay"
+            onClick={() => setFiltersOpen(false)}
+            role="presentation"
+          />
+        )}
+
         <main className="user-main">
-          <div className="return-count flex items-center justify-start gap-1">
-            <Briefcase className="h-4 w-4 mr-1 shrink-0" />
-            <span className="leading-none">{sortedJobs.length}</span> <span className="leading-none">jobs found</span>
+          <div className="main-header">
+            <div className="return-count flex items-center justify-start gap-1">
+              <Briefcase className="h-4 w-4 mr-1 shrink-0" />
+              <span className="leading-none">{sortedJobs.length}</span> <span className=" leading-none">jobs found</span>
+            </div>
+            <button
+              className="filters-toggle-btn"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              aria-label="Toggle filters"
+              type="button"
+            >
+              ☰ Filters
+            </button>
           </div>
           {loading && (
             <div className="search-feedback search-feedback--loading" role="status">
@@ -798,18 +832,32 @@ const handleMarkApplied = async (job: any, nextApplied: boolean) => {
               description={job.description}
               applyUrl={job.applyUrl}
               matchPercentage={job.match?.match_percentage}
-              onSelect={(id) => setSelectedJobId(id)}
+              onSelect={(id) => {
+                setSelectedJobId(id);
+                setDetailsOpen(true);
+              }}
               onSave={() => handleSaveJob(job)}
               isSaved={savedJobIds.includes(String(job.applyUrl))}
             />
           ))}
         </main>
 
+        {detailsOpen && selectedJob && (
+          <div
+            className="job-details-overlay"
+            onClick={() => setDetailsOpen(false)}
+            role="presentation"
+          />
+        )}
+
         {!loading && (
-          <div className="user-details">
+          <div className={`user-details ${detailsOpen ? "user-details--open" : ""}`}>
             <JobDetailPanel
               job={selectedJob}
-              onClose={() => setSelectedJobId(null)}
+              onClose={() => {
+                setDetailsOpen(false);
+                setSelectedJobId(null);
+              }}
               onSave={(id) => {
                 const current = sortedJobs.find((j) => j.id === id);
                 if (current) handleSaveJob(current);
