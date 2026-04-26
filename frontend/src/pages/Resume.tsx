@@ -472,10 +472,10 @@ const handleDeleteResume = async (targetResumeId: string) => {
                 <CardContent className="resume-card-content">
                   <div>
                     <CardHeader>
-                      <CardTitle>Stored Resumes</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="justify-self-center">Stored Resumes</CardTitle>
+                      {/* <CardDescription className="justify-self-center">
                         Review the uploads and make edits as needed
-                      </CardDescription>
+                      </CardDescription> */}
                     </CardHeader>
 
                     <div className="resume-table-desktop">

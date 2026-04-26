@@ -50,7 +50,7 @@ export function JobDetailPanel({
     <div className="job-detail-panel w-full lg:w-[520px] shrink-0 border-x-1 border-y-1 rounded-xl border-blue-500 bg-card">
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border rounded-xl bg-card p-4">
         <h2 className="font-semibold text-foreground">Job Details</h2>
-        <Button variant="outline" size="icon" onClick={onClose}>
+        <Button variant="outline" size="icon" className="lg:hidden" aria-label="Close job details" onClick={onClose}>
           <X className="h-4 w-4" />
         </Button>
       </div>
