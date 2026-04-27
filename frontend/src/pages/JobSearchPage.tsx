@@ -64,19 +64,27 @@ const JobSearchPage = () => {
 
   const [searchInput, setSearchInput] = useState<string>(searchTerm);
 
-  const handleLocationSearch = () => {
-    setSearchTerm(searchInput);
+const handleLocationSearch = () => {
+  setSearchTerm(searchInput);
+  localStorage.setItem("lastSearchTitle", searchInput);
 
-    if (!selectedState) {
-      setLocationTerm("");
-      return;
-    }
+  if (!selectedState) {
+    setLocationTerm("");
+    return;
+  }
 
-    const stateName = states.find((state) => state.isoCode === selectedState)?.name ?? "";
-    const locationQuery = selectedCity ? `${selectedCity}, ${stateName}` : stateName;
-    setLocationTerm(locationQuery);
-  };
+  const stateName =
+    states.find((state) => state.isoCode === selectedState)?.name ?? "";
 
+  const locationQuery = selectedCity
+    ? `${selectedCity}, ${stateName}`
+    : stateName;
+
+  setLocationTerm(locationQuery);
+  localStorage.setItem("lastSearchLocation", locationQuery);
+localStorage.setItem("lastSearchState", selectedState);
+localStorage.setItem("lastSearchCity", selectedCity);
+};
   const {
     jobType,
     setJobType,
@@ -212,6 +220,72 @@ if (data) {
     if (matchedState) {
       setSelectedState(matchedState.isoCode);
 
+      const stateCities = City.getCitiesOfState("US", matchedState.isoCode);
+      setCities(stateCities);
+    }
+  }
+
+  if (profileData?.city) {
+    setSelectedCity(profileData.city);
+  }
+
+/*  if (profileData?.location) {
+    setLocationTerm(profileData.location);
+  }*/
+ const lastSearchLocation = localStorage.getItem("lastSearchLocation");
+ 
+
+if (lastSearchLocation) {
+  setLocationTerm(lastSearchLocation);
+} else if (profileData?.location) {
+  setLocationTerm(profileData.location);
+}
+  
+const { data: preferenceData, error: preferenceError } = await supabase
+  .from("preferences")
+  .select("job_titles")
+  .eq("user_id", user.id)
+  .maybeSingle();
+
+if (preferenceError) {
+  console.error("Error loading preferences:", preferenceError.message);
+}  else {
+  const lastSearchTitle = localStorage.getItem("lastSearchTitle");
+
+  if (lastSearchTitle) {
+    setSearchTerm(lastSearchTitle);
+    setSearchInput(lastSearchTitle);
+  } else if (preferenceData?.job_titles?.length) {
+    const firstTitle = preferenceData.job_titles[0];
+
+    setSearchTerm(firstTitle);
+    setSearchInput(firstTitle);
+  }
+}
+}
+const lastSearchLocation = localStorage.getItem("lastSearchLocation");
+const lastSearchState = localStorage.getItem("lastSearchState");
+const lastSearchCity = localStorage.getItem("lastSearchCity");
+
+if (lastSearchState) {
+  setSelectedState(lastSearchState);
+
+  const stateCities = City.getCitiesOfState("US", lastSearchState);
+  setCities(stateCities);
+}
+
+if (lastSearchCity) {
+  setSelectedCity(lastSearchCity);
+}
+
+if (lastSearchLocation) {
+  setLocationTerm(lastSearchLocation);
+} else {
+  if (profileData?.state) {
+    const matchedState = states.find((state) => state.name === profileData.state);
+
+    if (matchedState) {
+      setSelectedState(matchedState.isoCode);
       const stateCities = City.getCitiesOfState("US", matchedState.isoCode);
       setCities(stateCities);
     }

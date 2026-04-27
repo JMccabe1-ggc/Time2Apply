@@ -23,10 +23,11 @@ export const useJobs = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [locationTerm, setLocationTerm] = useState("");
+    const [preferredTitle, setPreferredTitle] = useState("");
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchJobs = async (title: string, location: string) => {
-        const safeTitle = title.trim() || "jobs";
+        const safeTitle = title.trim() || preferredTitle || "jobs";
         const safeLocation = location.trim();
 
         if (!safeLocation) {
@@ -66,7 +67,31 @@ export const useJobs = () => {
             setLoading(false);
         }
     };
+useEffect(() => {
+  const loadPreferredTitle = async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData?.session?.user;
 
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("preferences")
+      .select("job_titles")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error loading preferred title:", error.message);
+      return;
+    }
+
+    if (data?.job_titles?.length) {
+      setPreferredTitle(data.job_titles[0]);
+    }
+  };
+
+  loadPreferredTitle();
+}, []);
         // Auto-fetch when searchTerm or locationTerm changes
     useEffect(() => {
         if (debounceTimer.current) {
